@@ -8,8 +8,10 @@ const AppNavigator = createStackNavigator({
     },
     CEP: {
         screen: CEP
-    }
-})
+    },
+}, {
+    headerMode: 'none',
+    })
 
 const AppContainer = createAppContainer(AppNavigator)
 
