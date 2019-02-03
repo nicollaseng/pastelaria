@@ -8,11 +8,12 @@ import {
 	 Label,
 	 Button,
 	 Text } from 'native-base'
+import { withNavigation } from 'react-navigation'
 
 class LoginForm extends Component {
 
 	navigate = () => {
-		this.props.navigate.navigation('CEP')
+		this.props.navigation.navigate('CEP')
 	}
 	render(){
 		return (
@@ -78,4 +79,4 @@ const styles = {
 	}
 }
 
-export default LoginForm
+export default withNavigation(LoginForm)
