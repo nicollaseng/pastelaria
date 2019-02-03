@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
 import { ImageBackground, TouchableOpacity } from 'react-native'
+import { View } from 'react-native'
 import {
 	 Content,
 	 Form,
@@ -8,16 +9,48 @@ import {
 	 Label,
 	 Button,
 	 Text } from 'native-base'
+import { withNavigation } from 'react-navigation'
+import HeaderView from '../../components/HeaderView'
 
 class LoginForm extends Component {
 
-	navigate = () => {
-		this.props.navigate.navigation('CEP')
+	constructor(props){
+		super(props)
+		this.state = {
+			borderBottomColor: '#fff'
+		}
 	}
+
+	navigate = () => {
+		this.props.navigation.navigate('CEP')
+	}
+
+	onBack = () => {
+		this.props.navigation.goBack()
+	}
+
+	handleInput = (param) => {
+		this.setState({
+			cep: param,
+			borderBottomColor: '#e60000'
+		})
+	}
+
 	render(){
 		return (
 			<View style={styles.container}>
-				<Text> Oi </Text>
+				<HeaderView title="Consulta CEP" onBack={this.onBack} />
+				<View style={styles.subContainer}>
+						<Text style={styles.cep}> CEP </Text>
+						<Item inlineLabel>
+							<Input
+								style={[ styles.input, { borderBottomColor: this.state.borderBottomColor} ]}
+								onChangeText={this.handleInput} />
+						</Item>
+					<Button block style={ styles.button }>
+						<Text> Consultar </Text>
+					</Button>
+				</View>
 			</View>
 		)
 	}
@@ -29,16 +62,18 @@ const styles = {
 		height: '100%',
 	},
 	container: {
-		justifyContent: 'flex-end',
 		flex: 1,
-		// paddingHorizontal: 20,
-		// marginBottom: 50
+	},
+	subContainer: {
+		flex: 1,
+		justifyContent: 'center',
+		paddingHorizontal: 20
 	},
 	loginForm: {
 		paddingVertical: 20
 	},
 	button: {
-		paddingVertical: 20,
+		marginVertical: 40,
 		backgroundColor: '#e60000'
 	},
 	label: {
@@ -47,18 +82,25 @@ const styles = {
 		fontWeight: '700'
 	},
 	input: {
-		color: '#fff',
-		fontSize: 13.5,
-		fontWeight: '600'
-	},
-	footer: {
-		color: '#fff',
+		color: '#000',
 		fontSize: 13.5,
 		fontWeight: '600',
-		textDecorationLine: 'underline',
+		borderBottomWidth: 1
+	},
+	footer: {
+		color: '#e60000',
+		fontSize: 13.5,
+		fontWeight: '600',
+		textAlign: 'center',
+		padding: 10
+	},
+	cep: {
+		color: '#e60000',
+		fontSize: 16,
+		fontWeight: '600',
 		textAlign: 'center',
 		padding: 10
 	}
 }
 
-export default LoginForm
+export default withNavigation(LoginForm)
