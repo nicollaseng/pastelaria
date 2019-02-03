@@ -16,26 +16,9 @@ class LoginForm extends Component {
 	}
 	render(){
 		return (
-			<ImageBackground source={require('../assets/img/login.jpg')} style={styles.loginScreen} >
-				 <Content contentContainerStyle={styles.container}>
-          <Form style={styles.loginForm}>
-            <Item inlineLabel>
-              <Label style={styles.label}>Username</Label>
-              <Input style={[ styles.input ]} />
-            </Item>
-            <Item inlineLabel last>
-              <Label style={styles.label}>Password</Label>
-              <Input style={[ styles.input ]} secureTextEntry />
-            </Item>
-          </Form>
-					<Button block style={ styles.button }>
-						<Text>Login</Text>
-					</Button>
-					<TouchableOpacity onPress={this.navigate}>
-						<Text style={styles.footer}> Cadastre-se </Text>
-					</TouchableOpacity>
-        </Content>
-			</ImageBackground>
+			<View style={styles.container}>
+				<Text> Oi </Text>
+			</View>
 		)
 	}
 }
@@ -48,8 +31,8 @@ const styles = {
 	container: {
 		justifyContent: 'flex-end',
 		flex: 1,
-		paddingHorizontal: 20,
-		marginBottom: 50
+		// paddingHorizontal: 20,
+		// marginBottom: 50
 	},
 	loginForm: {
 		paddingVertical: 20
