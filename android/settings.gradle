@@ -1,0 +1,3 @@
+rootProject.name = 'pastelaria'
+
+include ':app'
