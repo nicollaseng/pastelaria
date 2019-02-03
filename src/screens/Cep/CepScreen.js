@@ -11,13 +11,15 @@ import {
 	 Text } from 'native-base'
 import { withNavigation } from 'react-navigation'
 import HeaderView from '../../components/HeaderView'
+import VMasker from 'vanilla-masker'
 
-class LoginForm extends Component {
+class CEPScreen extends Component {
 
 	constructor(props){
 		super(props)
 		this.state = {
-			borderBottomColor: '#fff'
+			borderBottomColor: '#fff', 
+			cep: ''
 		}
 	}
 
@@ -36,6 +38,12 @@ class LoginForm extends Component {
 		})
 	}
 
+	mask = (param) => {
+		// let unMasked = VMasker(param).unMask()
+		let masked = 	VMasker.toPattern(param, "99.999-999"); 
+		this.setState({ cep: masked })
+	}
+
 	render(){
 		return (
 			<View style={styles.container}>
@@ -44,8 +52,9 @@ class LoginForm extends Component {
 						<Text style={styles.cep}> CEP </Text>
 						<Item inlineLabel>
 							<Input
+								value={this.state.cep}
 								style={[ styles.input, { borderBottomColor: this.state.borderBottomColor} ]}
-								onChangeText={this.handleInput} />
+								onChangeText={this.mask} />
 						</Item>
 					<Button block style={ styles.button }>
 						<Text> Consultar </Text>
@@ -83,9 +92,10 @@ const styles = {
 	},
 	input: {
 		color: '#000',
-		fontSize: 13.5,
+		fontSize: 21,
 		fontWeight: '600',
-		borderBottomWidth: 1
+		borderBottomWidth: 1,
+		textAlign:'center'
 	},
 	footer: {
 		color: '#e60000',
@@ -96,11 +106,11 @@ const styles = {
 	},
 	cep: {
 		color: '#e60000',
-		fontSize: 16,
+		fontSize: 20,
 		fontWeight: '600',
 		textAlign: 'center',
 		padding: 10
 	}
 }
 
-export default withNavigation(LoginForm)
+export default withNavigation(CEPScreen)
