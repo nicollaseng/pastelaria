@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { ImageBackground } from 'react-native'
+import { ImageBackground, TouchableOpacity } from 'react-native'
 import {
 	 Content,
 	 Form,
@@ -21,12 +21,15 @@ class LoginForm extends Component {
             </Item>
             <Item inlineLabel last>
               <Label style={styles.label}>Password</Label>
-              <Input style={[ styles.input ]} />
+              <Input style={[ styles.input ]} secureTextEntry />
             </Item>
           </Form>
 					<Button block style={ styles.button }>
 						<Text>Login</Text>
 					</Button>
+					<TouchableOpacity>
+						<Text style={styles.footer}> Cadastre-se </Text>
+					</TouchableOpacity>
         </Content>
 			</ImageBackground>
 		)
@@ -60,6 +63,14 @@ const styles = {
 		color: '#fff',
 		fontSize: 13.5,
 		fontWeight: '600'
+	},
+	footer: {
+		color: '#fff',
+		fontSize: 13.5,
+		fontWeight: '600',
+		textDecorationLine: 'underline',
+		textAlign: 'center',
+		padding: 10
 	}
 }
 
