@@ -14,6 +14,7 @@ import {
 	 Button,
 	 Text,
 	 Icon } from 'native-base'
+// import { LoginManager, AccessToken } from 'react-native-fbsdk';
 import { withNavigation } from 'react-navigation'
 import { iphonex } from "../utils/iphonex"
 import { logo, colors } from "../theme/global"
@@ -23,6 +24,32 @@ class LoginForm extends Component {
 	navigate = () => {
 		this.props.navigation.navigate('CEP')
 	}
+
+	onClickFacebookButton = async () => {
+
+		// TO DO - FACEBOOK LOGIN AND REGISTER AT FACEBOOK API
+
+		// await LoginManager.logInWithReadPermissions(['public_profile'])
+		// .then(async (response) => {
+		// 	console.log('response',response)
+    //   if(!response.error && !response.isCancelled) {
+		// 		await AccessToken.getCurrentAccessToken()
+		// 		.then(data => {
+		// 			this.props.userInfo(data)
+		// 			this.setState({ userInfo: data }, () => this.props.navigation.navigate('Register'))
+		// 			console.log('autenticao de login', data)
+		// 			.catch((error) => {
+		// 				console.log('error no login', error)
+    //         let msg = 'Não foi possível realizar o Login do Facebook. Por favor, tente mais tarde.';
+    //         Alert.alert('Atenção', msg);
+    //       });
+    //     });
+    //   }
+		// })
+
+		return; // Temporalily
+	}
+	
 	render(){
 		return (
 			<View style={{ flex: 1 }}>
@@ -50,7 +77,7 @@ class LoginForm extends Component {
               <Label style={styles.label}>Username</Label>
               <Input style={[ styles.input ]} />
             </Item>
-            <Item inlineLabel last>
+            <Item inlineLabel >
               <Label style={styles.label}>Password</Label>
               <Input style={[ styles.input ]} secureTextEntry />
             </Item>
