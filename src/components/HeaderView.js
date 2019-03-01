@@ -9,9 +9,10 @@ import {
   Title,
   Right
 } from 'native-base';
+import { colors } from "../theme/global"
 
 const HeaderView = ({ title, hasTabs, onBack }) => (
-  <Header hasTabs={hasTabs} style={{ backgroundColor: '#e60000'}}>
+  <Header hasTabs={hasTabs} style={{ backgroundColor: colors.header.primary }}>
     <Left>
       <Button transparent onPress={() => onBack()}>
         <Icon name="arrow-back" />
