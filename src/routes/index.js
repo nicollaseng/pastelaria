@@ -5,10 +5,13 @@ import screens from './screens';
 
 const AppNavigator = createStackNavigator({
 	Login: {
-		screen: Login
+		screen: screens.Login
 	},
 	CEP: {
-		screen: CEP
+		screen: screens.CEP
+	},
+	Signup: {
+		screen: screens.SignupScreen
 	},
 },
 {
