@@ -19,9 +19,10 @@ const colors = {
 			warning: "#e60000",
 			forgotPassord: "#8c8c8c",
 			category: '#3fb6e6',
+			primary: "#e60000"
 		},
 		header: {
-			primary: '#3fb6e6'
+			primary: '#e60000'
 		},
 		footer: "#8c8c8c",
 		icon: {
