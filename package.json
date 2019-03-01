@@ -14,9 +14,13 @@
     "react-native": "0.58.3",
     "react-native-dotenv": "^0.2.0",
     "react-native-gesture-handler": "^1.0.15",
+    "react-native-image-picker": "^0.28.0",
     "react-native-maps": "^0.23.0",
     "react-native-vector-icons": "^6.2.0",
     "react-navigation": "^3.1.2",
+    "react-redux": "^6.0.1",
+    "redux": "^4.0.1",
+    "validator": "^10.11.0",
     "vanilla-masker": "^1.2.0"
   },
   "devDependencies": {
