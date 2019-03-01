@@ -14,7 +14,11 @@ import HeaderView from '../../components/HeaderView'
 import VMasker from 'vanilla-masker'
 import { MAPS_KEY } from 'react-native-dotenv'
 import axios from 'axios';
-import geolibe from 'geolib'
+// import geolibe from 'geolib'
+import { colors } from "../../theme/global"
+import { connect } from 'react-redux'
+import { signUp } from '../../actions/AuthAction'
+
 
 class CEPScreen extends Component {
 
@@ -108,7 +112,21 @@ class CEPScreen extends Component {
 			);
 			if(distance > 10000){
 				Alert.alert('Atenção', 'Infelizmente ainda não cobrimos o endereço informado :(')
+				return;
 			}
+
+			let currentUserAddress = {
+				addressLatitude,
+				addressLongitude,
+				userLatitude,
+				userLongitude,
+				addressNumber,
+				address,
+				city,
+				neighborhood,
+			}
+			this.props.signUp(currentUserAddress)
+			this.props.navigation.navigate('Signup')
 			})
 			.catch(err => {
 				console.log('error', err)
@@ -182,13 +200,13 @@ class CEPScreen extends Component {
 										</Item>
 									</View>
 								</View>
-								<View style={{ width: '90%' }}>
-									<Button block style={ [styles.button, { marginVertical: 10 }] } onPress={ this.checkAddress }>
+								<View style={{ width: '90%'}}>
+									<Button block style={ [styles.button] } onPress={ this.checkAddress }>
 										<Text> Confirmar </Text>
 									</Button>
-									<Button block style={ [styles.button, { backgroundColor: '#ffcc00', marginVertical: 10}] } onPress={ () => this.setState({ fetch: !this.state.fetch, cep: '' }) }>
-										<Text> ENDEREÇO ERRADO? </Text>
-									</Button>
+									<TouchableOpacity block  onPress={ () => this.setState({ fetch: !this.state.fetch, cep: '' }) }>
+										<Text style={styles.footer}> Endereço errado? </Text>
+									</TouchableOpacity>
 								</View>
 							</View>
 						)}
@@ -219,10 +237,10 @@ const styles = {
 	},
 	button: {
 		marginVertical: 40,
-		backgroundColor: '#e60000'
+		backgroundColor: colors.button.primary
 	},
 	label: {
-		color: '#fff',
+		color: colors.text.primary,
 		fontSize: 15,
 		fontWeight: '700'
 	},
@@ -234,14 +252,14 @@ const styles = {
 		textAlign:'center'
 	},
 	footer: {
-		color: '#e60000',
+		color: colors.footer,
 		fontSize: 13.5,
 		fontWeight: '600',
 		textAlign: 'center',
-		padding: 10
+		marginBottom: 60
 	},
 	cep: {
-		color: '#e60000',
+		color: colors.text.primary,
 		fontSize: 20,
 		fontWeight: '600',
 		textAlign: 'center',
@@ -272,4 +290,8 @@ const styles = {
 	}
 }
 
-export default withNavigation(CEPScreen)
+const mapStateToProps = state => ({
+	currentUser: state.authReducer.currentUser
+})
+
+export default connect(mapStateToProps, { signUp })(withNavigation(CEPScreen))
