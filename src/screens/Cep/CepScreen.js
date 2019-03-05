@@ -130,7 +130,7 @@ class CEPScreen extends Component {
 			})
 			.catch(err => {
 				console.log('error', err)
-				Alert.alert('Atenção', 'Verifique o endereço informado')
+				Alert.alert('Atenção', 'Ops, houve algo errado :(  tente novamente em alguns instantes')
 			})
 	}
 	

@@ -3,7 +3,6 @@ const colors = {
 		input: '#e60000'
 	},
 	primary: '#e60000',
-	
 	standardButton: '#03a9f4',
 	button: {
 			primary: '#e60000',
@@ -24,13 +23,13 @@ const colors = {
 		header: {
 			primary: '#e60000'
 		},
-		footer: "#8c8c8c",
+		footer: '#e60000',
 		icon: {
-			activated: '#3fb6e6',
+			activated: '#fff',
 			desactivated: "#ccc"
 		},
 		drawer: {
-			header: '#3fb6e6',
+			header: '#e60000',
 			text: "#fff"
 		},
 		popup: {

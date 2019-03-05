@@ -13,9 +13,12 @@ const AppNavigator = createStackNavigator({
 	Signup: {
 		screen: screens.SignupScreen
 	},
+	DashBoard: {
+		screen: screens.DashboardScreen
+	},
 },
 {
-	initialRouteName: 'Login',
+	initialRouteName: 'DashBoard',
 	headerMode: 'none',
 	navigationOptions: {
 		headerVisible: false,
