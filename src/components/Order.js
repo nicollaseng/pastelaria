@@ -37,7 +37,7 @@ class Order extends Component {
     return (
      <Container>
          <Content>
-             <Text>Order</Text>
+             <Text>Acompanhe seus pedidos aqui</Text>
          </Content>
      </Container>
     );

@@ -37,7 +37,7 @@ class Chart extends Component {
     return (
      <Container>
          <Content>
-             <Text>Chart</Text>
+             <Text>Carrinho Vazio</Text>
          </Content>
      </Container>
     );
