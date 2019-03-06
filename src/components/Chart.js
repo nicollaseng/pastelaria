@@ -4,7 +4,8 @@ import {
   StyleSheet,
   Text,
   TouchableOpacity,
-  AsyncStorage
+  AsyncStorage,
+  View
 } from "react-native";
 
 import {
@@ -35,18 +36,23 @@ class Chart extends Component {
   render() {
     console.log("props", this.props.tab);
     return (
-     <Container>
+      <View style={styles.container}>
+        <View style={styles.deliverContainer}>
+          <Text style={styles.deliverText}>ENTREGAR EM: </Text>
+          <Text style={styles.addressText}>{`${this.props.address.address}, ${this.props.address.addressNumber}`}</Text>
+        </View>
          <Content>
+           <
              <Text>Carrinho Vazio</Text>
          </Content>
-     </Container>
+     </View>
     );
   }
 }
 
 const mapStateToProps = state => ({
-  token: state.authReducer.loginToken,
-  tab: state.navigation.tab
+  chart: state.chart.chart,
+  address: state.authReducer.currentUser
 });
 
 export default connect(
@@ -62,4 +68,19 @@ const styles = {
   header: {
     backgroundColor: colors.header.primary
   },
+  deliverContainer: {
+    flex: 0.1,
+    backgroundColor: colors.primary,
+    padding: 10
+  },
+  deliverText: {
+    fontSize: 14,
+    fontWeigth: '700',
+    color: '#fff'
+  },
+  addressText: {
+    fontSize: 14,
+    fontWeigth: '500',
+    color: '#ffd11a'
+  }
 };

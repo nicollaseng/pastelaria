@@ -325,6 +325,7 @@ class Home extends Component {
 		}
 		console.log('itemOrdered', itemOrdered)
 		this.props.setChart(itemOrdered)
+		this.props.navigation.navigate('Chart')
 	}
   render() {
     console.log("state", this.state.itemQuantity, 'props', this.props);
