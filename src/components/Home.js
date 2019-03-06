@@ -20,7 +20,7 @@ import {colors} from "../theme/global";
 import FooterView from "./FooterView.js";
 // import { onSignOut, isSignedIn } from "../services/auth.js";
 import { connect } from "react-redux";
-import { logOut } from "../actions/AuthAction.js";
+import { setChart } from "../actions/ChartAction.js";
 import { withNavigation } from "react-navigation";
 import Modal from "react-native-modal";
 
@@ -34,6 +34,8 @@ class Home extends Component {
 				sizeQuantity: 0
 			},
 			itemQuantity: 1,
+			itemSizeDescription: '',
+			itemIngredientDescription: [],
 			itemFinalPrice: 0.0,
 			finalPrice: 0,
 
@@ -63,21 +65,25 @@ class Home extends Component {
 	}
 
 	filterRadio = (param, index) => {
-		let { itemIngredient } = this.state
+		let { itemIngredient, itemIngredientDescription } = this.state
 		let indexFiltered = _.findIndex(itemIngredient, e => e === index)
+		let itemDescriptionFiltered = _.findIndex(itemIngredientDescription, e => e === param.title)
 		console.log('index filtered', indexFiltered)
-		if(indexFiltered !== -1){
+		if(indexFiltered !== -1 && itemDescriptionFiltered !== -1){
 			_.pullAt(itemIngredient, indexFiltered)
+			_.pullAt(itemIngredientDescription, itemDescriptionFiltered)
 			this.setState({ 
 				itemIngredient: itemIngredient, 
 				[`${param.title}Radio`]: !this.state[`${param.title}Radio`],
-				itemFinalPrice: this.state.itemFinalPrice - param.price < 0 ? 0 : this.state.itemFinalPrice - param.price 
+				itemFinalPrice: this.state.itemFinalPrice - param.price < 0 ? 0 : this.state.itemFinalPrice - param.price,
+				itemIngredientDescription 
 			 })
 		} else {
 			return this.setState({
 				[`${param.title}Radio`]: !this.state[`${param.title}Radio`],
 				itemIngredient: itemIngredient.length <= 3 ? [...itemIngredient, index] : [],
-				itemFinalPrice: this.state.itemFinalPrice + param.price
+				itemFinalPrice: this.state.itemFinalPrice + param.price,
+				itemIngredientDescription: [...this.state.itemIngredientDescription, param.title]
 			})
 		}
 	}
@@ -89,6 +95,7 @@ class Home extends Component {
 			case 'size':
 				return this.setState({
 					itemSize: itemSize.length === 0 ? [index] : [],
+					itemSizeDescription: param.title,
 					itemFinalPrice: itemSize.length === 0 ? this.state.itemFinalPrice + param.price : this.state.itemFinalPrice - param.price < 0 ? 0 : this.state.itemFinalPrice - param.price 
 				})
 			case 'ingredient':
@@ -96,6 +103,7 @@ class Home extends Component {
 			case 'bag': 
 			return this.setState({
 				itemBag: itemBag.length === 0 ? [index] : [],
+				itemFinalPrice: itemBag.length === 0 ? this.state.itemFinalPrice + param.price : this.state.itemFinalPrice - param.price < 0 ? 0 : this.state.itemFinalPrice - param.price 
 			})
 		}
 	}
@@ -291,7 +299,7 @@ class Home extends Component {
 							</TouchableOpacity>
 						</View>
 						<View style={styles.addOrderContainer}>
-							<TouchableOpacity>
+							<TouchableOpacity onPress={this.setChart}>
 								<View style={styles.addOrderSubContainer}>
 									<Text style={styles.addText}>Adicionar</Text>
 									<Text style={styles.addText}>R$ {this.state.itemQuantity > 1 ? this.state.finalPrice.toFixed(2) : this.state.itemFinalPrice.toFixed(2)}</Text>
@@ -303,8 +311,23 @@ class Home extends Component {
 			</View>
 		)
 	}
+
+	setChart = () => {
+		const { modalItem, itemIngredientDescription, itemSizeDescription, itemQuantity, finalPrice } = this.state
+		let itemOrdered = {
+			item: modalItem.title,
+			itemIngredientDescription,
+			itemSizeDescription,
+			bag: true,
+			itemQuantity,
+			itemPrice: finalPrice
+			// itemSize: 
+		}
+		console.log('itemOrdered', itemOrdered)
+		this.props.setChart(itemOrdered)
+	}
   render() {
-    console.log("state", this.state.itemQuantity);
+    console.log("state", this.state.itemQuantity, 'props', this.props);
     return (
 				<View style={styles.container}>
 					<Modal isVisible={this.state.visibleModal}>
@@ -338,13 +361,12 @@ class Home extends Component {
 }
 
 const mapStateToProps = state => ({
-  token: state.authReducer.loginToken,
-  tab: state.navigation.tab
+  chart: state.chart.chart
 });
 
 export default connect(
   mapStateToProps,
-  { logOut }
+  { setChart }
 )(withNavigation(Home));
 
 const styles = {
