@@ -1,6 +1,6 @@
 import { ORDER } from './actionTypes'
 
-const setOrder = param => {
+const submitOrder = param => {
 	return ({
 		type: ORDER,
 		payload: param
@@ -8,5 +8,5 @@ const setOrder = param => {
 }
 
 export {
-  setOrder,
+  submitOrder,
 }

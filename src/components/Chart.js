@@ -39,17 +39,20 @@ class Chart extends Component {
     }
   }
 
-  componentWillMount(){
-    let { chart } = this.props
+  componentWillReceiveProps(nextProps){
+    let { chart } = nextProps
+    let totalPriceArray = []
+    let totalPrice = 0
     if(chart && chart.length > 0) {
-      return chart.map(itemChart => {
-        this.setState({ totalPrice: parseFloat(this.state.totalPrice) + parseFloat(itemChart.itemPrice)},
-          () => this.setState({ totalPriceWithDelivery: parseFloat(this.state.totalPrice) + 0})
+      return chart.map(itemChart => totalPrice = totalPrice + parseFloat(itemChart.itemPrice))
+        
+        // this.setState({ totalPrice: parseFloat(this.state.totalPrice) + parseFloat(itemChart.itemPrice)},
+          // () => this.setState({ totalPriceWithDelivery: parseFloat(this.state.totalPrice) + 0})
           //at this moment we should sum with Frete. Waiting for customer business estrategy for frete
-        )
-      })
+      }
+      console.log('total price', totalPrice)
+      this.setState({totalPrice})
     }
-  }
 
   _renderChart = () => {
     let { chart } = this.props
@@ -107,7 +110,7 @@ class Chart extends Component {
     }
   }
 
-  _renderSubChart = () => {
+  _renderSubChart = (fullPrice) => {
     const { chart } = this.props
     if(chart && chart.length > 0){
       return (
@@ -122,9 +125,9 @@ class Chart extends Component {
               <Text style={styles.leftOrderTotalText}>Total</Text>
             </View>
             <View style={styles.leftOrder}>
-              <Text style={[styles.leftOrderTextSubItemDescription, { textAlign: 'right'}]}>R$ {this.state.totalPrice}</Text>
+              <Text style={[styles.leftOrderTextSubItemDescription, { textAlign: 'right'}]}>R$ {fullPrice}</Text>
               <Text style={[styles.leftOrderTextSubItemDescription, { color: colors.text.free, textAlign:'right' }]}>Grátis</Text>
-              <Text style={[styles.leftOrderTotalText, { textAlign: 'right' }]}>R$ {this.state.totalPriceWithDelivery}</Text>
+              <Text style={[styles.leftOrderTotalText, { textAlign: 'right' }]}>R$ {fullPrice}</Text>
             </View>
           </View>
           <View style={styles.couponContainer}>
@@ -173,6 +176,11 @@ class Chart extends Component {
 
   render() {
     console.log("props", this.props, this.state.totalPrice);
+    const { chart } = this.props   
+    let totalPrice = 0
+    chart.map(itemChart => {
+      totalPrice = parseFloat(totalPrice) + parseFloat(itemChart.itemPrice)
+    })
     return (
       <View style={styles.container}>
         <View style={styles.deliverContainer}>
@@ -181,7 +189,7 @@ class Chart extends Component {
         </View>
          <Content>
            {this._renderChart()}
-           {this._renderSubChart()}
+           {this._renderSubChart(totalPrice)}
          </Content>
      </View>
     );
