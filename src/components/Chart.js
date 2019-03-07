@@ -5,20 +5,14 @@ import {
   Text,
   TouchableOpacity,
   AsyncStorage,
-  View
+  View,
+  Image
 } from "react-native";
 
 import {
-  Header,
-  Body,
-  Left,
-  Right,
-  Title,
-  Drawer,
-  Button,
-  Container,
   Spinner,
-  Content
+  Content,
+  Input
 } from "native-base";
 
 import SideBar from "./Sidebar";
@@ -29,11 +23,32 @@ import FooterView from "./FooterView.js";
 import { connect } from "react-redux";
 import { logOut } from "../actions/AuthAction.js";
 import { withNavigation } from "react-navigation";
-import Icon from "react-native-vector-icons/FontAwesome";
+import Icon from "react-native-vector-icons/FontAwesome5";
 import _ from "lodash"
 import { setChart } from "../actions/ChartAction.js";
 
 class Chart extends Component {
+
+  constructor(props){
+    super(props)
+    this.state = {
+      totalPrice: 0,
+      totalPriceWithDelivery: 0,
+      couponCode: '',
+    }
+  }
+
+  componentDidMount(){
+    let { chart } = this.props
+    if(chart && chart.length > 0) {
+      return chart.map(itemChart => {
+        this.setState({ totalPrice: parseFloat(this.state.totalPrice) + parseFloat(itemChart.itemPrice)},
+          () => this.setState({ totalPriceWithDelivery: parseFloat(this.state.totalPrice) + 0})
+          //at this moment we should sum with Frete. Waiting for customer business estrategy for frete
+        )
+      })
+    }
+  }
 
   _renderChart = () => {
     let { chart } = this.props
@@ -96,14 +111,46 @@ class Chart extends Component {
     if(chart && chart.length > 0){
       return (
         <View>
-          <Text style={styles.addMore}> Adicionar mais items </Text>
+          <View>
+            <Text style={styles.addMore}> Adicionar mais items </Text>
+          </View>
+          <View style={styles.orderSubContainer}>
+            <View style={styles.leftOrder}>
+              <Text style={styles.leftOrderTextSubItemDescription}>Subtotal</Text>
+              <Text style={styles.leftOrderTextSubItemDescription}>Taxa de Entrega</Text>
+              <Text style={styles.leftOrderTotalText}>Total</Text>
+            </View>
+            <View style={styles.leftOrder}>
+              <Text style={[styles.leftOrderTextSubItemDescription, { textAlign: 'right'}]}>R$ {this.state.totalPrice}</Text>
+              <Text style={[styles.leftOrderTextSubItemDescription, { color: colors.text.free, textAlign:'right' }]}>Grátis</Text>
+              <Text style={[styles.leftOrderTotalText, { textAlign: 'right' }]}>R$ {this.state.totalPriceWithDelivery}</Text>
+            </View>
+          </View>
+          <View style={styles.couponContainer}>
+            <Icon name="ticket-alt" size={45} color="#a6a6a6" />
+            <View style={styles.couponCodeContainer}>
+              <Text style={[styles.leftOrderTextSubItemDescription, { fontSize: 18, fontWeight: '400', marginTop: 10 }]}>
+                Cupom de desconto
+              </Text>
+              <Input
+                style={styles.inputCoupon}
+                value={this.state.couponCode}
+                onChangeText={(couponCode) => this.setState({ couponCode })}
+                placeholder="Insira um código"
+                placeholderTextColor="#808080"
+              />
+            </View>
+          </View>
+          <TouchableOpacity style={styles.finish} onPress={this.submitOrder}>
+            <Text style={styles.finishText}>Finalizar</Text>
+          </TouchableOpacity>
         </View>
       )
     }
   }
 
   render() {
-    console.log("props", this.props);
+    console.log("props", this.props, this.state.totalPrice);
     return (
       <View style={styles.container}>
         <View style={styles.deliverContainer}>
@@ -143,12 +190,12 @@ const styles = {
   },
   deliverText: {
     fontSize: 14,
-    fontWeigth: '700',
+    fontWeight: '700',
     color: '#fff'
   },
   addressText: {
     fontSize: 14,
-    fontWeigth: '500',
+    fontWeight: '500',
     color: '#ffd11a'
   },
   orderContainer: {
@@ -179,12 +226,12 @@ const styles = {
   leftOrderText: {
     fontSize: 15, 
     color: '#000',
-    fontWeigth: '700'
+    fontWeight: '300'
   },
   rightOrderText: {
     fontSize: 15, 
     color: '#000',
-    fontWeigth: '500',
+    fontWeight: '300',
     textAlign: 'center'
   },
   leftOrderTextSubItemDescription: {
@@ -200,9 +247,52 @@ const styles = {
     borderBottomColor: '#ccc',
     borderTopWidth: 0.5,
     borderTopColor: '#ccc',
-    fontWeigth: '400'
+    fontWeight: '400'
   },
   addMoreContainer: {
     
+  },
+  leftOrderTotalText: {
+    fontSize: 18,
+    padding: 8,
+    color: '#000',
+    fontWeight: '600'
+  },
+  couponContainer: {
+    flex: 1,
+    borderBottomWidth: 10,
+    borderBottomColor: '#f2f2f2',
+    borderTopWidth: 10,
+    borderTopColor: '#f2f2f2',
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    alignItems: 'center'
+  },
+  couponCodeContainer: {
+    flexDirection: 'column',
+    alignItems: 'flex-start'
+  },
+  submitCoupon: {
+    color: colors.primary,
+    textAlign: 'center',
+    padding: 5,
+    fontSize: 14,
+  },
+  inputCoupon: {
+    fontSize: 13,
+    color: "#ccc"
+  },
+  finish: {
+    marginVertical: 15,
+    backgroundColor: colors.primary,
+    marginHorizontal: 10,
+    borderRadius: 2
+  },
+  finishText: {
+    color: "#fff",
+    fontSize: 15,
+    fontWeight: '500',
+    padding: 10,
+    textAlign: 'center'
   }
 };
