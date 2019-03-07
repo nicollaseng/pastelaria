@@ -314,6 +314,7 @@ class Home extends Component {
 	}
 
 	setChart = () => {
+		let globalChart = this.props.chart
 		const { modalItem, itemIngredientDescription, itemSizeDescription, itemQuantity, finalPrice, itemFinalPrice } = this.state
 		let itemOrdered = {
 			item: modalItem.title,
@@ -325,7 +326,7 @@ class Home extends Component {
 			// itemSize:
 		}
 		console.log('itemOrdered', itemOrdered)
-		this.props.setChart(itemOrdered)
+		this.props.setChart([...globalChart, itemOrdered])
 		this.setState({
 			visibleModal: false, 	
 			itemSize: [],
@@ -335,7 +336,7 @@ class Home extends Component {
 		this.props.tabNavigator('chart')
 	}
   render() {
-    console.log("state", this.state.itemQuantity, 'props', this.props);
+		console.log("state", this.state.itemQuantity, 'props', this.props);
     return (
 				<View style={styles.container}>
 					<Modal isVisible={this.state.visibleModal}>

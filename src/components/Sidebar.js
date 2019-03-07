@@ -17,7 +17,7 @@ import {
 } from "native-base";
 
 import PropTypes from "prop-types";
-import IconAwesome from "react-native-vector-icons/FontAwesome";
+import IconAwesome from "react-native-vector-icons/FontAwesome5";
 import { colors } from "../theme/global";
 
 const SideBar = props => (

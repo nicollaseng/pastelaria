@@ -14,7 +14,6 @@ import {
   Left,
   Right,
   Title,
-  Icon,
   Drawer,
   Button,
   Container,
@@ -30,33 +29,55 @@ import FooterView from "./FooterView.js";
 import { connect } from "react-redux";
 import { logOut } from "../actions/AuthAction.js";
 import { withNavigation } from "react-navigation";
+import Icon from "react-native-vector-icons/FontAwesome";
+import _ from "lodash"
+import { setChart } from "../actions/ChartAction.js";
 
 class Chart extends Component {
 
   _renderChart = () => {
-    const { chart } = this.props
-    if(chart && Object.keys(chart).length > 0) {
-      return (
-        <View style={styles.orderContainer}>
-          <View style={styles.orderSubContainer}>
-            <View style={styles.leftOrder}>
-              <Text style={styles.leftOrderText}>
-                {this.props.chart.itemQuantity}x {this.props.chart.item}
-              </Text>
-              {this._renderSubItems(chart)}
-            </View>
-            <View style={styles.rightOrder}>
-              <Text style={styles.rightOrderText}>
-                R$ {this.props.chart.itemPrice}
-              </Text>
+    let { chart } = this.props
+    if(chart && chart.length > 0) {
+      return chart.map(itemChart => {
+        return (
+          <View style={styles.orderContainer}>
+            <View style={styles.orderSubContainer}>
+              <View style={styles.leftOrder}>
+                <Text style={styles.leftOrderText}>
+                  {itemChart.itemQuantity}x {itemChart.item}
+                </Text>
+                {this._renderSubItems(itemChart)}
+              </View>
+              <View style={styles.rightOrder}>
+                <Text style={styles.rightOrderText}>
+                  R$ {itemChart.itemPrice}
+                </Text>
+                <TouchableOpacity onPress={() => this._deleteItem(itemChart)}>
+                  <Icon name="trash" size={25} color={colors.primary} />
+                </TouchableOpacity>
+              </View>
             </View>
           </View>
-        </View>
-      )
+        )
+      })
     } else {
       return (
         <Text style={styles.emptyChart}>Carrinho Vazio</Text>
       )
+    }
+  }
+
+  _deleteItem = (param) => {
+    let { chart } = this.props
+    var newChart = _.clone(chart)
+    if(newChart && newChart.length > 0) {
+      let index = _.findIndex(newChart, e => e.item === param.item)
+      console.log('index', index, newChart)
+      if(index !== -1){
+        _.pullAt(newChart, index)
+        console.log('new chart', newChart)
+        return this.props.setChart(newChart)
+      }
     }
   }
 
@@ -70,6 +91,17 @@ class Chart extends Component {
     }
   }
 
+  _renderSubChart = () => {
+    const { chart } = this.props
+    if(chart && chart.length > 0){
+      return (
+        <View>
+          <Text style={styles.addMore}> Adicionar mais items </Text>
+        </View>
+      )
+    }
+  }
+
   render() {
     console.log("props", this.props);
     return (
@@ -80,6 +112,7 @@ class Chart extends Component {
         </View>
          <Content>
            {this._renderChart()}
+           {this._renderSubChart()}
          </Content>
      </View>
     );
@@ -92,7 +125,7 @@ const mapStateToProps = state => ({
 
 export default connect(
   mapStateToProps,
-  { logOut }
+  { logOut, setChart }
 )(withNavigation(Chart));
 
 const styles = {
@@ -120,6 +153,7 @@ const styles = {
   },
   orderContainer: {
     flex: 1,
+    marginVertical: 15
   },
   orderSubContainer: {
     flexDirection: 'row',
@@ -130,6 +164,9 @@ const styles = {
     padding: 10
   },
   rightOrder: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-around',
     width: '45%',
     padding: 10
   },
@@ -153,5 +190,19 @@ const styles = {
   leftOrderTextSubItemDescription: {
     fontSize: 13,
     color: '#808080'
+  },
+  addMore: {
+    color: colors.primary,
+    fontSize: 14.5,
+    textAlign: 'center',
+    padding: 15,
+    borderBottomWidth: 0.5,
+    borderBottomColor: '#ccc',
+    borderTopWidth: 0.5,
+    borderTopColor: '#ccc',
+    fontWeigth: '400'
+  },
+  addMoreContainer: {
+    
   }
 };

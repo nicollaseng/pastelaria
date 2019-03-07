@@ -1,7 +1,7 @@
 import { CHART } from '../actions/actionTypes'
 
 const initial_state = {
-    chart: {}
+    chart: []
 }
 
 export const chart = (state = initial_state, action) => {
