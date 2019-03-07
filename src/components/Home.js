@@ -21,6 +21,7 @@ import FooterView from "./FooterView.js";
 // import { onSignOut, isSignedIn } from "../services/auth.js";
 import { connect } from "react-redux";
 import { setChart } from "../actions/ChartAction.js";
+import { tabNavigator } from "../actions/Navigation";
 import { withNavigation } from "react-navigation";
 import Modal from "react-native-modal";
 
@@ -313,19 +314,25 @@ class Home extends Component {
 	}
 
 	setChart = () => {
-		const { modalItem, itemIngredientDescription, itemSizeDescription, itemQuantity, finalPrice } = this.state
+		const { modalItem, itemIngredientDescription, itemSizeDescription, itemQuantity, finalPrice, itemFinalPrice } = this.state
 		let itemOrdered = {
 			item: modalItem.title,
 			itemIngredientDescription,
 			itemSizeDescription,
 			bag: true,
 			itemQuantity,
-			itemPrice: finalPrice
-			// itemSize: 
+			itemPrice: finalPrice === 0 ? itemFinalPrice.toFixed(2) : finalPrice.toFixed(2)
+			// itemSize:
 		}
 		console.log('itemOrdered', itemOrdered)
 		this.props.setChart(itemOrdered)
-		this.props.navigation.navigate('Chart')
+		this.setState({
+			visibleModal: false, 	
+			itemSize: [],
+			itemIngredient: [],
+			itemBag: []
+		})
+		this.props.tabNavigator('chart')
 	}
   render() {
     console.log("state", this.state.itemQuantity, 'props', this.props);
@@ -362,12 +369,13 @@ class Home extends Component {
 }
 
 const mapStateToProps = state => ({
-  chart: state.chart.chart
+	chart: state.chart.chart,
+	tab: state.navigation.tab
 });
 
 export default connect(
   mapStateToProps,
-  { setChart }
+  { setChart, tabNavigator }
 )(withNavigation(Home));
 
 const styles = {
