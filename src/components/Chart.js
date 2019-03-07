@@ -15,8 +15,6 @@ import {
   Input
 } from "native-base";
 
-import SideBar from "./Sidebar";
-import getSideBarItems from "./SidebarItems";
 import {colors} from "../theme/global";
 import FooterView from "./FooterView.js";
 // import { onSignOut, isSignedIn } from "../services/auth.js";
@@ -26,6 +24,9 @@ import { withNavigation } from "react-navigation";
 import Icon from "react-native-vector-icons/FontAwesome5";
 import _ from "lodash"
 import { setChart } from "../actions/ChartAction.js";
+import { tabNavigator } from "../actions/Navigation"
+import { submitOrder } from "../actions/OrderAction"
+import uuid from 'uuid'
 
 class Chart extends Component {
 
@@ -38,7 +39,7 @@ class Chart extends Component {
     }
   }
 
-  componentDidMount(){
+  componentWillMount(){
     let { chart } = this.props
     if(chart && chart.length > 0) {
       return chart.map(itemChart => {
@@ -149,6 +150,27 @@ class Chart extends Component {
     }
   }
 
+  submitOrder = () => {
+    Alert.alert('Hmmmmm', 'Seu pedido foi realizado com sucesso! Acompanhe o status de seu pedido na aba Pedidos')
+    const { chart, customer } = this.props
+    const { totalPrice, totalPriceWithDelivery, couponCode } = this.state
+    const orderNumber = Math.floor(Math.random() * 10001)
+    const orderID = uuid()
+    const order = {
+      orderNumber,
+      orderID,
+      chart,
+      totalPrice,
+      totalPriceWithDelivery,
+      couponCode,
+      customer,
+    }
+    console.log('order to send', order)
+    this.props.submitOrder(order)
+    this.props.setChart({})
+    this.props.tabNavigator('order')
+  }
+
   render() {
     console.log("props", this.props, this.state.totalPrice);
     return (
@@ -167,12 +189,13 @@ class Chart extends Component {
 }
 const mapStateToProps = state => ({
   chart: state.chart.chart,
-  address: state.authReducer.currentUser
+  address: state.authReducer.currentUser,
+  customer: state.authReducer.currentUser
 });
 
 export default connect(
   mapStateToProps,
-  { logOut, setChart }
+  { logOut, setChart, submitOrder, tabNavigator }
 )(withNavigation(Chart));
 
 const styles = {
