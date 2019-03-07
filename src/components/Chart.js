@@ -146,7 +146,7 @@ class Chart extends Component {
               />
             </View>
           </View>
-          <TouchableOpacity style={styles.finish} onPress={this.submitOrder}>
+          <TouchableOpacity style={styles.finish} onPress={() => this.submitOrder(fullPrice)}>
             <Text style={styles.finishText}>Finalizar</Text>
           </TouchableOpacity>
         </View>
@@ -154,7 +154,7 @@ class Chart extends Component {
     }
   }
 
-  submitOrder = () => {
+  submitOrder = (price) => {
     Alert.alert('Hmmmmm', 'Seu pedido foi realizado com sucesso! Acompanhe o status de seu pedido na aba Pedidos')
     const { chart, customer } = this.props
     const { totalPrice, totalPriceWithDelivery, couponCode } = this.state
@@ -164,12 +164,12 @@ class Chart extends Component {
       orderNumber,
       orderID,
       chart,
-      totalPrice,
-      totalPriceWithDelivery,
+      totalPrice: price,
+      totalPriceWithDelivery: price,
       couponCode,
       customer,
       dateDay: moment().date(),
-      dateMonth: moment().month().length < 2 ? `0${moment().month() + 1}` :moment().month() ,
+      dateMonth: moment().month().length === 1 ? `0${moment().month() + 1}` :moment().month()+1 ,
       date: moment().format('DD/MM/YYYY HH:mm:ss')
     }
     const orderForDetails = {
