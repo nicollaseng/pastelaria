@@ -19,6 +19,9 @@ const AppNavigator = createStackNavigator({
 	Chart: {
 		screen: screens.ChartScreen
 	},
+	OrderDetail: {
+		screen: screens.OrderDetailScreen
+	},
 },
 {
 	initialRouteName: 'DashBoard',

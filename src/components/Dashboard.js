@@ -31,6 +31,7 @@ import { withNavigation } from "react-navigation";
 import HomeScreen from "../screens/HomeScreen";
 import ChartScreen from "../screens/ChartScreen";
 import OrderScreen from "../screens/OrderScreen";
+import OrderDetailScreen from "../screens/OrderDetailScreen";
 
 class Dashboard extends Component {
   closeDrawer = () => {
@@ -61,13 +62,15 @@ class Dashboard extends Component {
 				return <ChartScreen />
 			case 'order':
 				return <OrderScreen />
+      case 'orderDetail':
+        return <OrderDetailScreen />
 			default:
 				return <HomeScreen />
 		}
   }
 
   render() {
-    console.log("props", this.props.tab);
+    console.log("props DA DASHBOARD", this.props);
     return (
       <Drawer
         panOpenMask={0.15}
@@ -96,7 +99,8 @@ class Dashboard extends Component {
 
 const mapStateToProps = state => ({
   token: state.authReducer.loginToken,
-  tab: state.navigation.tab
+  tab: state.navigation.tab,
+  currentUser: state.authReducer.currentUser
 });
 
 export default connect(

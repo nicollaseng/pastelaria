@@ -1,9 +1,9 @@
 import { NAVIGATOR_TAB } from './actionTypes'
 
-const tabNavigator = param => {
+const tabNavigator = (param, data) => {
 	return ({
 		type: NAVIGATOR_TAB,
-		payload: param
+		payload: [param, data]
 	})
 }
 

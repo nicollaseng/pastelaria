@@ -14,7 +14,7 @@ import HeaderView from '../../components/HeaderView'
 import VMasker from 'vanilla-masker'
 import { MAPS_KEY } from 'react-native-dotenv'
 import axios from 'axios';
-// import geolibe from 'geolib'
+import geolib from 'geolib'
 import { colors } from "../../theme/global"
 import { connect } from 'react-redux'
 import { signUp } from '../../actions/AuthAction'
@@ -87,6 +87,7 @@ class CEPScreen extends Component {
 				fetch: true
 			})
 		})
+		// below we set restaurant addresse and get restaurante Lat and Long
 		axios.get(`http://www.mapquestapi.com/geocoding/v1/address?key=${MAPS_KEY}&location=3636+avenida francisco sa+fortaleza,60310001`)
 		.then(response => {
 			let userLatitude = response.data.results[0].locations[0].displayLatLng.lat
@@ -99,8 +100,9 @@ class CEPScreen extends Component {
 	}
 
 	checkAddress = () => {
-		const { addressNumber, city, address, userLatitude, userLongitude, cep } = this.state
+		const { addressNumber, city, address, userLatitude, userLongitude, cep, neighborhood} = this.state
 		this.setState({ loading: true })
+		// bellow we check distance between restaurant and user 
 		axios.get(`http://www.mapquestapi.com/geocoding/v1/address?key=${MAPS_KEY}&location=${addressNumber}+${address}+${city},${this.unMask(cep)}`)
 			.then(response => {
 				let locationLength = response.data.results[0].locations.length
@@ -125,6 +127,7 @@ class CEPScreen extends Component {
 				city,
 				neighborhood,
 			}
+			console.log('current user address', currentUserAddress)
 			this.props.signUp(currentUserAddress)
 			this.props.navigation.navigate('Signup')
 			})

@@ -195,13 +195,10 @@ class RegisterScreen extends Component {
     const {
 			name,
 			phone,
-			email,
+      email,
+      cpf,
 			password,
 			passwordConf,
-			enderecoBairro,
-			enderecoLocalidade,
-			enderecoLogradouro,
-			enderecoNumero
     } = this.state;
 
     if (name.length < 3) {
@@ -243,25 +240,25 @@ class RegisterScreen extends Component {
       return;
 		}
 		
-		if (enderecoBairro.length < 4) {
-      this.showWarningAlert('Bairro inválido');
-      return;
-		}
+		// if (enderecoBairro.length < 4) {
+    //   this.showWarningAlert('Bairro inválido');
+    //   return;
+		// }
 
-		if (enderecoLocalidade.length < 3) {
-      this.showWarningAlert('Cidade inválida');
-      return;
-		}
+		// if (enderecoLocalidade.length < 3) {
+    //   this.showWarningAlert('Cidade inválida');
+    //   return;
+		// }
 
-		if (enderecoLogradouro.length < 5) {
-      this.showWarningAlert('Endereço inválido');
-      return;
-		}
+		// if (enderecoLogradouro.length < 5) {
+    //   this.showWarningAlert('Endereço inválido');
+    //   return;
+		// }
 
-		if (enderecoNumero.length < 1) {
-      this.showWarningAlert('Número inválido');
-      return;
-		}
+		// if (enderecoNumero.length < 1) {
+    //   this.showWarningAlert('Número inválido');
+    //   return;
+		// }
 		
     if (password !== passwordConf) {
       this.showWarningAlert('As senhas devem ser iguais');
@@ -276,22 +273,22 @@ class RegisterScreen extends Component {
        location,
        name,
        email,
-       enderecoBairro,
-       enderecoEstado,
-       enderecoCep,
-       enderecoLocalidade,
-       enderecoLogradouro,
-       enderecoNumero } = this.state
+       cpf,
+       phone
+       } = this.state
 
 		let currentUser = {
+      ...this.props.currentUser,
 			profilePhoto,
 			location,
 			name,
       email,
+      cpf,
+      phone
     }
     
     this.props.signUp(currentUser)
-    this.props.navigation.navigate('Payment')
+    this.props.navigation.navigate('DashBoard')
 	}
 
   focusInput(inputField) {
@@ -369,7 +366,7 @@ class RegisterScreen extends Component {
   }
 
   render() {
-    console.log('props', this.props, 'state', this.state)
+    console.log('props do signup', this.props.currentUser, 'state', this.state)
     const { isLoading } = this.state;
     return (
       <Container style={styles.container} pointerEvents={isLoading ? 'none' : 'auto'}>

@@ -7,6 +7,7 @@ const SELECT_CATEGORY = 'SELECT_CATEGORY';
 const UPDATE_DISTANCE = 'UPDATE_DISTANCE';
 const ORDER = 'ORDER';
 const CHART = 'CHART';
+const ALL_ORDER = 'ALL_ORDER';
 
 
 export { 
@@ -18,5 +19,6 @@ export {
 	NAVIGATOR_TAB,
 	UPDATE_DISTANCE,
     ORDER,
-    CHART
+	CHART,
+	ALL_ORDER
 }

@@ -26,7 +26,7 @@ class FooterView extends React.Component {
 		const { generalTab } = nextProps
 		console.log('generaltab', generalTab)
 		if(generalTab.length > 0){
-			this.setState({ activeTab: generalTab })
+			this.setState({ activeTab: generalTab === 'orderDetail' ? 'order' : generalTab })
 		}
 	}
 

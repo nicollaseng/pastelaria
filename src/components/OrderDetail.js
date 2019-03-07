@@ -27,7 +27,6 @@ import { setChart } from "../actions/ChartAction.js";
 import { tabNavigator } from "../actions/Navigation"
 import { submitOrder, setOrder } from "../actions/OrderAction"
 import uuid from 'uuid'
-import moment from 'moment'
 
 class Chart extends Component {
 
@@ -72,32 +71,11 @@ class Chart extends Component {
                 <Text style={styles.rightOrderText}>
                   R$ {itemChart.itemPrice}
                 </Text>
-                <TouchableOpacity onPress={() => this._deleteItem(itemChart)}>
-                  <Icon name="trash" size={25} color={colors.primary} />
-                </TouchableOpacity>
               </View>
             </View>
           </View>
         )
       })
-    } else {
-      return (
-        <Text style={styles.emptyChart}>Carrinho Vazio</Text>
-      )
-    }
-  }
-
-  _deleteItem = (param) => {
-    let { chart } = this.props
-    var newChart = _.clone(chart)
-    if(newChart && newChart.length > 0) {
-      let index = _.findIndex(newChart, e => e.item === param.item)
-      console.log('index', index, newChart)
-      if(index !== -1){
-        _.pullAt(newChart, index)
-        console.log('new chart', newChart)
-        return this.props.setChart(newChart)
-      }
     }
   }
 
@@ -116,9 +94,6 @@ class Chart extends Component {
     if(chart && chart.length > 0){
       return (
         <View>
-          <View>
-            <Text style={styles.addMore}> Adicionar mais items </Text>
-          </View>
           <View style={styles.orderSubContainer}>
             <View style={styles.leftOrder}>
               <Text style={styles.leftOrderTextSubItemDescription}>Subtotal</Text>
@@ -132,24 +107,13 @@ class Chart extends Component {
             </View>
           </View>
           <View style={styles.couponContainer}>
-            <Icon name="ticket-alt" size={45} color="#a6a6a6" />
             <View style={styles.couponCodeContainer}>
               <Text style={[styles.leftOrderTextSubItemDescription, { fontSize: 18, fontWeight: '400', marginTop: 10 }]}>
-                Cupom de desconto
+                Endereço de entrega
               </Text>
-              <Input
-                style={styles.inputCoupon}
-                value={this.state.couponCode}
-                onChangeText={(couponCode) => this.setState({ couponCode })}
-                placeholder="Insira um código"
-                placeholderTextColor="#808080"
-              />
-            </View>
           </View>
-          <TouchableOpacity style={styles.finish} onPress={this.submitOrder}>
-            <Text style={styles.finishText}>Finalizar</Text>
-          </TouchableOpacity>
         </View>
+			</View>
       )
     }
   }
@@ -168,9 +132,6 @@ class Chart extends Component {
       totalPriceWithDelivery,
       couponCode,
       customer,
-      dateDay: moment().date(),
-      dateMonth: moment().month().length < 2 ? `0${moment().month() + 1}` :moment().month() ,
-      date: moment().format('DD/MM/YYYY HH:mm:ss')
     }
     const orderForDetails = {
       title: orderNumber, data: [order]
@@ -191,10 +152,10 @@ class Chart extends Component {
     })
     return (
       <View style={styles.container}>
-        <View style={styles.deliverContainer}>
+        {/* <View style={styles.deliverContainer}>
           <Text style={styles.deliverText}>ENTREGAR EM: </Text>
           <Text style={styles.addressText}>{`${this.props.address.address}, ${this.props.address.addressNumber}`}</Text>
-        </View>
+        </View> */}
          <Content>
            {this._renderChart()}
            {this._renderSubChart(totalPrice)}
@@ -212,7 +173,7 @@ const mapStateToProps = state => ({
 
 export default connect(
   mapStateToProps,
-  { logOut, setChart, submitOrder, tabNavigator, setOrder }
+  { logOut, setChart, submitOrder, tabNavigator }
 )(withNavigation(Chart));
 
 const styles = {
