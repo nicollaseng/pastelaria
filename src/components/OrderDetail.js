@@ -55,9 +55,9 @@ class Chart extends Component {
     }
 
   _renderChart = () => {
-    let { chart } = this.props
-    if(chart && chart.length > 0) {
-      return chart.map(itemChart => {
+    let { order } = this.props
+    if(order && Object.keys(order).length > 0) {
+      return order.chart.map(itemChart => {
         return (
           <View style={styles.orderContainer}>
             <View style={styles.orderSubContainer}>
@@ -89,9 +89,9 @@ class Chart extends Component {
     }
   }
 
-  _renderSubChart = (fullPrice) => {
-    const { chart } = this.props
-    if(chart && chart.length > 0){
+  _renderSubChart = () => {
+    const { order } = this.props
+    if(order && Object.keys(order).length > 0){
       return (
         <View>
           <View style={styles.orderSubContainer}>
@@ -101,55 +101,60 @@ class Chart extends Component {
               <Text style={styles.leftOrderTotalText}>Total</Text>
             </View>
             <View style={styles.leftOrder}>
-              <Text style={[styles.leftOrderTextSubItemDescription, { textAlign: 'right'}]}>R$ {fullPrice}</Text>
+              <Text style={[styles.leftOrderTextSubItemDescription, { textAlign: 'right'}]}>R$ {order.totalPrice}</Text>
               <Text style={[styles.leftOrderTextSubItemDescription, { color: colors.text.free, textAlign:'right' }]}>Grátis</Text>
-              <Text style={[styles.leftOrderTotalText, { textAlign: 'right' }]}>R$ {fullPrice}</Text>
+              <Text style={[styles.leftOrderTotalText, { textAlign: 'right' }]}>R$ {order.totalPriceWithDelivery}</Text>
             </View>
           </View>
           <View style={styles.couponContainer}>
-            <View style={styles.couponCodeContainer}>
-              <Text style={[styles.leftOrderTextSubItemDescription, { fontSize: 18, fontWeight: '400', marginTop: 10 }]}>
-                Endereço de entrega
-              </Text>
-          </View>
+						<Text style={[styles.leftOrderTextSubItemDescription, styles.address]}>
+							Endereço de entrega
+						</Text>
+						{/* <Text style={styles.leftOrderTextSubItemDescription}>{order.customer.address}, {order.customer.addressNumber}</Text>
+						<Text style={styles.leftOrderTextSubItemDescription}>{order.customer.neighborhood} - {order.customer.city}</Text> */}
+						<Text style={[styles.leftOrderTextSubItemDescription, { marginLeft: 9 }]}>Rua érico mota, 489</Text>
+						<Text style={[styles.leftOrderTextSubItemDescription, { marginLeft: 9 }]}>Centro - Fortaleza</Text>
+        	</View>
+          <View style={styles.orderFurtherDetails}>
+						<Text style={[styles.leftOrderTextSubItemDescription, styles.address]}>
+							Mais informações
+						</Text>
+						<View style={styles.detailOrderContainer}>
+							<View>
+								<Text style={styles.leftOrderTextSubItemDescription}>No. Pedido</Text>
+								<Text style={styles.leftOrderTextSubItemDescription}>Data do Pedido</Text>
+								<Text style={styles.leftOrderTextSubItemDescription}>Dinheiro</Text>
+							</View>
+							<View>
+								<Text style={[styles.leftOrderTextSubItemDescription, { textAlign: 'right'}]}>#{order.orderNumber}</Text>
+								<Text style={[styles.leftOrderTextSubItemDescription, { textAlign: 'right'}]}>{order.date}</Text>
+								<Text style={[styles.leftOrderTextSubItemDescription, { textAlign: 'right'}]}>Troco para R$ {order.totalPriceWithDelivery}</Text>
+							</View>
+						</View>
         </View>
+				<View style={styles.orderFurtherDetails}>
+					<Text style={[styles.leftOrderTextSubItemDescription, styles.address]}>
+						Andamento do pedido
+					</Text>
+					<View style={styles.detailOrderContainer}>
+						<View>
+							<Text style={styles.leftOrderTextSubItemDescription}>Status</Text>
+						</View>
+						<View>
+							<Text style={[styles.leftOrderTextSubItemDescription, { textAlign: 'right'}]}>Em andamento</Text>
+						</View>
+					</View>
+        </View>
+				<TouchableOpacity onPress={this.evaluation}>
+					<Text style={styles.evaluate}> Avaliar </Text>
+				</TouchableOpacity>
 			</View>
       )
     }
   }
 
-  submitOrder = () => {
-    Alert.alert('Hmmmmm', 'Seu pedido foi realizado com sucesso! Acompanhe o status de seu pedido na aba Pedidos')
-    const { chart, customer } = this.props
-    const { totalPrice, totalPriceWithDelivery, couponCode } = this.state
-    const orderNumber = Math.floor(Math.random() * 10001)
-    const orderID = uuid()
-    const order = {
-      orderNumber,
-      orderID,
-      chart,
-      totalPrice,
-      totalPriceWithDelivery,
-      couponCode,
-      customer,
-    }
-    const orderForDetails = {
-      title: orderNumber, data: [order]
-    }
-    console.log('order to send', order)
-    this.props.submitOrder(order) // current order only
-    this.props.setOrder([...this.props.allOrders, orderForDetails]) // set all orders for order view section list
-    this.props.setChart({}) // make empty chart again
-    this.props.tabNavigator('order') //navigate to orders
-  }
-
   render() {
-    console.log("props", this.props, this.state.totalPrice);
-    const { chart } = this.props   
-    let totalPrice = 0
-    chart.map(itemChart => {
-      totalPrice = parseFloat(totalPrice) + parseFloat(itemChart.itemPrice)
-    })
+    console.log('props do order detail', this.props )
     return (
       <View style={styles.container}>
         {/* <View style={styles.deliverContainer}>
@@ -158,7 +163,7 @@ class Chart extends Component {
         </View> */}
          <Content>
            {this._renderChart()}
-           {this._renderSubChart(totalPrice)}
+           {this._renderSubChart()}
          </Content>
      </View>
     );
@@ -168,7 +173,8 @@ const mapStateToProps = state => ({
   chart: state.chart.chart,
   address: state.authReducer.currentUser,
   customer: state.authReducer.currentUser,
-  allOrders: state.order.allOrders
+	allOrders: state.order.allOrders,
+	order: state.navigation.data
 });
 
 export default connect(
@@ -264,10 +270,8 @@ const styles = {
     borderBottomWidth: 10,
     borderBottomColor: '#f2f2f2',
     borderTopWidth: 10,
-    borderTopColor: '#f2f2f2',
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    alignItems: 'center'
+		borderTopColor: '#f2f2f2',
+		paddingVertical: 10,
   },
   couponCodeContainer: {
     flexDirection: 'column',
@@ -295,5 +299,32 @@ const styles = {
     fontWeight: '500',
     padding: 10,
     textAlign: 'center'
-  }
+	},
+	address: { 
+		fontSize: 18,
+		fontWeight: '400',
+		color: '#000',
+		textAlign: 'left',
+		// padding: 5,
+		marginLeft: 9
+	},
+	detailOrderContainer: {
+		flexDirection: 'row',
+		justifyContent: 'space-between',
+		alignItems: 'center',
+		paddingHorizontal: 10,
+	},
+	orderFurtherDetails: {
+		flex: 1,
+    borderBottomWidth: 10,
+		borderBottomColor: '#f2f2f2',
+		paddingVertical: 10,
+	},
+	evaluate: {
+		textAlign: 'center',
+		color: colors.primary,
+		padding: 15,
+		fontSize: 15,
+		fontWeight: '400'
+	}
 };

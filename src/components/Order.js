@@ -38,9 +38,7 @@ class Order extends Component {
 
   _renderOrderHeader = (param) => {
 		return (
-			<View style={styles.modalItemSize}>
-				<Text style={styles.modalItemsOptions}>{param.title}</Text>
-			</View>
+			<View style={styles.modalItemSize} />
 		)
   }
   
@@ -50,10 +48,10 @@ class Order extends Component {
 					<View style={[styles.item, { 	flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center' }]}>
 						<View style={styles.dateContainer}>
 							<Text style={styles.title}>{item.dateDay}</Text>
-							<Text style={styles.title}>{item.dateMonth}</Text>
+							<Text style={styles.title}>{this.renderMonth(item.dateMonth)}</Text>
 						</View>
             <View style={{ marginHorizontal: 5 }}>
-              <Text style={styles.orderNumber}>Pedido #{item.title}</Text>
+              <Text style={styles.orderNumber}>Pedido #{item.orderNumber}</Text>
               <Text style={styles.itemText}>{item.chart[0].itemQuantity}x {item.chart[0].item}</Text>
             </View>
             <View style={{ marginHorizontal: 5 }}>
@@ -62,6 +60,35 @@ class Order extends Component {
 					</View>
 			</TouchableWithoutFeedback>
 		)
+  }
+
+  renderMonth = (param) => {
+    switch(param){
+      case 1:
+        return 'Jan'
+      case 2:
+        return 'Fev'
+      case 3:
+        return 'Mar'
+      case 4:
+        return 'Abr'
+      case 5:
+        return 'Mai'
+      case 6:
+        return 'Jun'
+      case 7:
+        return 'Jul'
+      case 8:
+        return 'Ago'
+      case 9:
+        return 'Set'
+      case 10:
+        return 'Out'
+      case 11:
+        return 'Nov'
+      case 12:
+        return 'Dez'
+    }
   }
 
   // _itemTitle = (item) => {
@@ -79,25 +106,10 @@ class Order extends Component {
 		if(allOrders && allOrders.length > 0){
 			return (
 				<SectionList
-					sections={[
-            {title: '', data: [
-              {title: '5234', 
-              dateDay: '06',
-              dateMonth: 'Mar',
-              chart: [{itemQuantity: 2, item: 'Pastelao Azul'}, {itemQuantity: 1, item: 'Pastelao Verde'}],
-              // customer: { address: 'Rua Erico Mota', addressNumber: 489, addressNe}
-            },
-            ]},
-            {title: '', data: [
-              {title: '6503', 
-              dateDay: '05',
-              dateMonth: 'Mar',
-              chart: [{itemQuantity: 2, item: 'Pastelao Azul'}, {itemQuantity: 1, item: 'Pastelao Verde'}]},
-            ]},
-				  ]}
-				renderSectionHeader={ ({section}) =>  this._renderOrderHeader(section) }
-				renderItem={ ({item, index}) => this._renderOrderContent(item, index, 'size') }
-				keyExtractor={ (item, index) => index }
+					sections={allOrders}
+          renderSectionHeader={ ({section}) =>  this._renderOrderHeader(section) }
+          renderItem={ ({item, index}) => this._renderOrderContent(item, index, 'size') }
+          keyExtractor={ (item, index) => index }
 			/>
 		 )
 		} else {
@@ -111,26 +123,7 @@ class Order extends Component {
     return (
      <Container>
          <Content>
-             {/* {this._renderOrder()} */}
-             <SectionList
-					sections={[
-					{title: '', data: [
-						{title: '5235', 
-						dateDay: '06',
-						dateMonth: 'Mar',
-						chart: [{itemQuantity: 2, item: 'Pastelao Azul'}, {itemQuantity: 1, item: 'Pastelao Verde'}]},
-					]},
-					{title: '', data: [
-						{title: '6503', 
-						dateDay: '05',
-						dateMonth: 'Mar',
-						chart: [{itemQuantity: 2, item: 'Pastelao Azul'}, {itemQuantity: 1, item: 'Pastelao Verde'}]},
-					]},
-				]}
-				renderSectionHeader={ ({section}) =>  this._renderOrderHeader(section) }
-				renderItem={ ({item, index}) => this._renderOrderContent(item, index, 'size') }
-				keyExtractor={ (item, index) => index }
-			/>
+             {this._renderOrder()}
          </Content>
      </Container>
     );
