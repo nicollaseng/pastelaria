@@ -59,7 +59,8 @@ class LoginForm extends Component {
 					style={styles.logo}
 				/>
         </View>
-				<View style={{ paddingVertical: 10, paddingHorizontal: 10}}>
+				{/* FUTURE VERSIONS - FACBEBOOK LOGIN */}
+				{/* <View style={{ paddingVertical: 10, paddingHorizontal: 10}}>
 					<Button
 						iconLeft
 						block
@@ -70,7 +71,7 @@ class LoginForm extends Component {
 						Entrar com Facebook
 					</Text>
 					</Button>
-					</View>
+					</View> */}
 				 <Content contentContainerStyle={styles.container}>
           <Form style={styles.loginForm}>
             <Item inlineLabel>

@@ -81,6 +81,9 @@ const SideBar = props => (
       )}
     />
     </Content>
+    <View style={{justifyContent: 'flex-end'}}>
+        <Text style={styles.version}>Versão 0.0.1beta</Text>
+    </View>
   </Container>
 );
  
@@ -137,6 +140,12 @@ const styles = {
     color: colors.drawer.text,
     fontSize: 14,
     fontWeight: '600',
+  },
+  version: {
+    fontSize: 12,
+    color: '#808080',
+    textAlign: 'right',
+    padding: 10
   }
 }
 

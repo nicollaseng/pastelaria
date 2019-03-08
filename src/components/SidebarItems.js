@@ -27,7 +27,7 @@ function getSideBarItems (context, currentUser) {
 		help,
 		{
 			title: 'Sair',
-			icon: 'sign-out',
+			icon: 'sign-out-alt',
 			useAwesome: true,
 			action: context.handleSignOutButton
 		}
