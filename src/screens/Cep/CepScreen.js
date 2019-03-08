@@ -100,6 +100,7 @@ class CEPScreen extends Component {
 	}
 
 	checkAddress = () => {
+		const { currentUser} = this.props
 		const { addressNumber, city, address, userLatitude, userLongitude, cep, neighborhood} = this.state
 		this.setState({ loading: true })
 		// bellow we check distance between restaurant and user 
@@ -118,6 +119,7 @@ class CEPScreen extends Component {
 			}
 
 			let currentUserAddress = {
+				...this.props.currentUser,
 				addressLatitude,
 				addressLongitude,
 				userLatitude,
@@ -129,7 +131,7 @@ class CEPScreen extends Component {
 			}
 			console.log('current user address', currentUserAddress)
 			this.props.signUp(currentUserAddress)
-			this.props.navigation.navigate('Signup')
+			this.props.navigation.navigate(currentUser && Object.keys(currentUser).length > 0 ? 'DashBoard' : 'Signup')
 			})
 			.catch(err => {
 				console.log('error', err)
@@ -139,9 +141,11 @@ class CEPScreen extends Component {
 	
 
 	render(){
+		const { currentUser } = this.props
+		const oldUser = currentUser && Object.keys(currentUser).length > 0
 		return (
 			<View style={styles.container}>
-				<HeaderView title="Consulta CEP" onBack={this.onBack} />
+				<HeaderView title={oldUser ? 'Meu endereço' : 'Consultar CEP'} onBack={this.onBack} />
 				<View style={styles.subContainer}>
 						{!this.state.fetch ? (
 						<View>

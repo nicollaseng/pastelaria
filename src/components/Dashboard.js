@@ -54,8 +54,8 @@ class Dashboard extends Component {
     this.props.navigation.navigate('Signup')
   }
 
-  handlePaymentButton = () => {
-    return;
+  handleAddressButton = () => {
+    this.props.navigation.navigate('CEP')
   }
 
   renderScreen(){

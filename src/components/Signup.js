@@ -159,12 +159,12 @@ class RegisterScreen extends Component {
   }
   
   componentWillReceiveProps(nextProps){
-    const { currentUser } = nextProps
+    const { currentUser } = this.props
     if(currentUser && Object.keys(currentUser).length > 0){
       this.setState({
         oldUser: true,
         name: currentUser.name,
-        phone:  curreUser.phone,
+        phone:  currentUser.phone,
         email: currentUser.email,
         cpf: currentUser.cpf,
         enderecoNumero: currentUser.addressNumber,
@@ -507,6 +507,7 @@ class RegisterScreen extends Component {
   render() {
     console.log('props do signup', this.props.currentUser, 'state', this.state)
     const { isLoading } = this.state;
+    const { currentUser } = this.props
     return (
       <Container style={styles.container} pointerEvents={isLoading ? 'none' : 'auto'}>
         <HeaderView

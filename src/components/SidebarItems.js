@@ -9,10 +9,10 @@ function getSideBarItems (context, currentUser) {
 		action: context.handleUserButton
 	}
 	payment = {
-		title: 'Pagamento',
-		icon: 'credit-card',
+		title: 'Meu endereço',
+		icon: 'home',
 		useAwesome: true,
-		action: context.handlePaymentButton
+		action: context.handleAddressButton
 	}
 	help = {
 		title: 'Ajuda',

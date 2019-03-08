@@ -3,7 +3,7 @@ import {colors} from "../theme/global";
 export const navTab = [
   {
     key: 'home',
-    icon: 'home',
+    icon: 'book-open',
     label: 'Cardápio',
     barColor: colors.footer,
     pressColor: 'rgba(255, 255, 255, 0.16)'
