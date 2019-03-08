@@ -35,7 +35,8 @@ class LoginForm extends Component {
 
 	componentWillMount(){
 		firebase.auth().onAuthStateChanged(user => {
-			this.props.navigation.navigate('DashBoard')
+			console.log('USER ON AUTH STATE CHANGE', user)
+			this.props.navigation.navigate(user ? 'DashBoard' : 'Login')
 		})
 	}
 

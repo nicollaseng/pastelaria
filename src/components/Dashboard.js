@@ -50,11 +50,12 @@ class Dashboard extends Component {
     this.drawer._root.open();
   };
 
-  handleSignOutButton = () => {
+  handleSignOutButton = async () => {
     this.setState({ loading: true })
     try {
-			firebase.auth().signOut()
+			await firebase.auth().signOut()
 				.then(() => {
+          alert('logout sucesso')
 					console.log('successfully logout')
 					this.setState({ loading: false })
 					this.props.navigation.navigate('Login')
