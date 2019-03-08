@@ -22,6 +22,9 @@ const AppNavigator = createStackNavigator({
 	OrderDetail: {
 		screen: screens.OrderDetailScreen
 	},
+	Payment: {
+		screen: screens.PaymentScreen
+	}
 },
 {
 	initialRouteName: 'DashBoard',

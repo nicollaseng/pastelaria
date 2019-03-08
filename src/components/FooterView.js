@@ -26,9 +26,20 @@ class FooterView extends React.Component {
 		const { generalTab } = nextProps
 		console.log('generaltab', generalTab)
 		if(generalTab.length > 0){
-			this.setState({ activeTab: generalTab === 'orderDetail' ? 'order' : generalTab })
+			this.setState({ activeTab: this._renderTab(generalTab) })
 		}
-	}
+  }
+  
+  _renderTab = (tab) => {
+    switch(tab){
+      case 'orderDetail':
+        return 'order'
+      case 'payment':
+        return 'chart'
+      default:
+        return tab
+    }
+  }
 
   renderIcon = icon => ({ isActive }) => (
     // <Button transparent style={styles.button}>

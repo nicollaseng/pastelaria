@@ -120,7 +120,7 @@ class Chart extends Component {
         <View>
           <View>
             <TouchableOpacity onPress={() => this.props.tabNavigator('home')}>
-              <Text style={styles.addMore}> Adicionar mais items </Text>
+              <Text style={styles.addMore}> AdicionarRRRRR </Text>
             </TouchableOpacity>
           </View>
           <View style={styles.orderSubContainer}>

@@ -4,6 +4,7 @@ import SignupScreen from '../screens/Signup/SignupScreen'
 import DashboardScreen from '../screens/Dashboard/DashboardScreen'
 import ChartScreen from '../screens/ChartScreen'
 import OrderDetailScreen from '../screens/OrderDetailScreen'
+import PaymentScreen from '../screens/PaymentScreen'
 
 export default {
 	Login,
@@ -11,5 +12,6 @@ export default {
 	SignupScreen,
 	DashboardScreen,
 	ChartScreen,
-	OrderDetailScreen
+	OrderDetailScreen,
+	PaymentScreen,
 }

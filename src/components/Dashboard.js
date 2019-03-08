@@ -32,6 +32,7 @@ import HomeScreen from "../screens/HomeScreen";
 import ChartScreen from "../screens/ChartScreen";
 import OrderScreen from "../screens/OrderScreen";
 import OrderDetailScreen from "../screens/OrderDetailScreen";
+import PaymentScreen from "../screens/PaymentScreen";
 
 class Dashboard extends Component {
   closeDrawer = () => {
@@ -64,6 +65,8 @@ class Dashboard extends Component {
 				return <OrderScreen />
       case 'orderDetail':
         return <OrderDetailScreen />
+      case 'payment':
+        return <PaymentScreen />
 			default:
 				return <HomeScreen />
 		}
