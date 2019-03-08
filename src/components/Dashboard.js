@@ -50,6 +50,10 @@ class Dashboard extends Component {
     return this.props.navigation.navigate("Login");
   };
 
+  handleUserButton = () => {
+    this.props.navigation.navigate('Signup')
+  }
+
   handlePaymentButton = () => {
     return;
   }

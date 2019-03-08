@@ -6,7 +6,7 @@ function getSideBarItems (context, currentUser) {
 		title: 'Minha Conta',
 		icon: 'user',
 		useAwesome: true,
-		action: context.handleUsersButton
+		action: context.handleUserButton
 	}
 	payment = {
 		title: 'Pagamento',

@@ -19,6 +19,18 @@ import {
 import PropTypes from "prop-types";
 import IconAwesome from "react-native-vector-icons/FontAwesome5";
 import { colors } from "../theme/global";
+import { connect } from "react-redux"
+import _ from "lodash"
+
+_getInitialLetter = (name) => {
+  if (name && name.length > 0){
+    let nameSplit = _.split(name,' ', 2)
+    let firstLetter = nameSplit[0][0]
+    let secondLetter = nameSplit[1][0]
+    let initials = `${firstLetter}${secondLetter}`
+    return initials
+  }
+} 
 
 const SideBar = props => (
   <Container style={{ backgroundColor: "#fefefe" }}>
@@ -26,12 +38,12 @@ const SideBar = props => (
     <View style={styles.container}>
         <View style={{ width: '15.7%', margin: 7}}>
           <TouchableOpacity style={styles.headerProfileButton}>
-            <Text style={styles.headerProfileText}>NM</Text>
+            <Text style={styles.headerProfileText}>{_getInitialLetter(props.currentUser.name)}</Text>
           </TouchableOpacity>
         </View>
         <View style={{ margin: 7}}>
-          <Text style={styles.headerText}>Nicollas Matheus</Text>
-          <Text style={[styles.headerText, { fontWeight: '200'}]}>n.matheuscarvalho@gmail.com</Text>
+          <Text style={styles.headerText}>{props.currentUser.name}</Text>
+          <Text style={[styles.headerText, { fontWeight: '200'}]}>{props.currentUser.email}</Text>
         </View>
     </View>
     <List
@@ -68,7 +80,7 @@ const SideBar = props => (
         </View>
       )}
     />
-  </Content>
+    </Content>
   </Container>
 );
  
@@ -132,4 +144,8 @@ SideBar.propTypes = {
   sideBarItems: PropTypes.array.isRequired
 };
 
-export default SideBar;
+const mapStateToProps = state => ({
+  currentUser: state.authReducer.currentUser
+})
+
+export default connect(mapStateToProps)(SideBar);

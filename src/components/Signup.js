@@ -156,7 +156,24 @@ class RegisterScreen extends Component {
       (error) => this.setState({ error: error.message }),
       { enableHighAccuracy: true, timeout: 20000, maximumAge: 1000 },
     );
-	}
+  }
+  
+  componentWillReceiveProps(nextProps){
+    const { currentUser } = nextProps
+    if(currentUser && Object.keys(currentUser).length > 0){
+      this.setState({
+        oldUser: true,
+        name: currentUser.name,
+        phone:  curreUser.phone,
+        email: currentUser.email,
+        cpf: currentUser.cpf,
+        enderecoNumero: currentUser.addressNumber,
+				enderecoLogradouro: currentUser.address,
+				enderecoLocalidade: currentUser.city,
+				enderecoBairro: currentUser.neighborhood,
+      })
+    }
+  }
 
 	getCurrentPosition = () => {
 		navigator.geolocation.getCurrentPosition(
@@ -239,27 +256,31 @@ class RegisterScreen extends Component {
       this.showWarningAlert('Senha inválida');
       return;
 		}
-		
-		// if (enderecoBairro.length < 4) {
-    //   this.showWarningAlert('Bairro inválido');
-    //   return;
-		// }
+    
+    //validate only if old user
+    if(this.state.oldUser){
+      if (enderecoBairro.length < 4) {
+        this.showWarningAlert('Bairro inválido');
+        return;
+      }
 
-		// if (enderecoLocalidade.length < 3) {
-    //   this.showWarningAlert('Cidade inválida');
-    //   return;
-		// }
+      if (enderecoLocalidade.length < 3) {
+        this.showWarningAlert('Cidade inválida');
+        return;
+      }
 
-		// if (enderecoLogradouro.length < 5) {
-    //   this.showWarningAlert('Endereço inválido');
-    //   return;
-		// }
+      if (enderecoLogradouro.length < 5) {
+        this.showWarningAlert('Endereço inválido');
+        return;
+      }
 
-		// if (enderecoNumero.length < 1) {
-    //   this.showWarningAlert('Número inválido');
-    //   return;
-		// }
-		
+      if (enderecoNumero.length < 1) {
+        this.showWarningAlert('Número inválido');
+        return;
+      }
+    }
+	
+		// TODO RECOVER PASSWORD - CHANGE PASSWORD
     if (password !== passwordConf) {
       this.showWarningAlert('As senhas devem ser iguais');
       return;
@@ -288,6 +309,7 @@ class RegisterScreen extends Component {
     }
     
     this.props.signUp(currentUser)
+    //TODO - SEND DATA TO FIREBASE
     this.props.navigation.navigate('DashBoard')
 	}
 
@@ -365,13 +387,130 @@ class RegisterScreen extends Component {
     }
   }
 
+  // _renderAddress = () => {
+  //   const { currentUser } = this.props
+  //   if(currentUser && Object.keys(currentUser).length > 0){
+  //     <View>
+  //       <View style={styles.logoTextHolder}>
+  //         <Label style={styles.logoText}>Endereço</Label>
+  //       </View>
+  //       <Grid>
+  //         <Col style={{ flex: 0.6 }}>
+  //           <Item
+  //             stackedLabel
+  //           >
+  //             <Label>CEP</Label>
+  //             <Input
+  //               ref={(c) => { this.cepInput = c; }}
+  //               onEndEditing={() => this.handleSearchCepButtonClick()}
+  //               returnKeyType="next"
+  //               keyboardType="phone-pad"
+  //               onChangeText={applyMask(this, 'enderecoCep', brCep)}
+  //               value={this.state.enderecoCep}
+  //             />
+  //           </Item>
+  //         </Col>
+  //         <Col
+  //           style={{
+  //             flex: 0.4,
+  //             marginLeft: 10,
+  //             justifyContent: 'center',
+  //             alignItems: 'center'
+  //           }}
+  //         >
+  //           <Button
+  //             block
+  //             style={styles.cepButton}
+  //             onPress={this.handleSearchCepButtonClick}
+  //           >
+  //             <Text>
+  //               Buscar
+  //             </Text>
+  //           </Button>
+  //         </Col>
+  //       </Grid>
+  //       <Grid>
+  //         <Col style={{ flex: 0.7 }}>
+  //           <Item
+  //             stackedLabel
+  //           >
+  //             <Label>Logradouro</Label>
+  //             <Input
+  //               ref={(c) => { this.enderecoLogradouroInput = c; }}
+  //               onSubmitEditing={() => this.focusInput('enderecoNumeroInput')}
+  //               returnKeyType="next"
+  //               onChangeText={enderecoLogradouro => this.setState({ enderecoLogradouro })}
+  //               value={this.state.enderecoLogradouro}
+  //             />
+  //           </Item>
+  //         </Col>
+  //         <Col style={{ flex: 0.3 }}>
+  //           <Item
+  //             stackedLabel
+  //           >
+  //             <Label>Nº</Label>
+  //             <Input
+  //               ref={(c) => { this.enderecoNumeroInput = c; }}
+  //               onSubmitEditing={() => this.focusInput('enderecoBairroInput')}
+  //               returnKeyType="next"
+  //               onChangeText={enderecoNumero => this.setState({ enderecoNumero })}
+  //               value={this.state.enderecoNumero}
+  //             />
+  //           </Item>
+  //         </Col>
+  //       </Grid>
+  //       <Item
+  //         stackedLabel
+  //       >
+  //         <Label>Bairro</Label>
+  //         <Input
+  //           ref={(c) => { this.enderecoBairroInput = c; }}
+  //           onSubmitEditing={() => this.focusInput('enderecoLocalidadeInput')}
+  //           returnKeyType="next"
+  //           onChangeText={enderecoBairro => this.setState({ enderecoBairro })}
+  //           value={this.state.enderecoBairro}
+  //         />
+  //       </Item>
+  //       <Grid>
+  //         <Col style={{ flex: 0.7 }}>
+  //           <Item
+  //             stackedLabel
+  //           >
+  //             <Label>Cidade</Label>
+  //             <Input
+  //               ref={(c) => { this.enderecoLocalidadeInput = c; }}
+  //               onSubmitEditing={() => this.focusInput('enderecoEstadoInput')}
+  //               returnKeyType="next"
+  //               onChangeText={enderecoLocalidade => this.setState({ enderecoLocalidade })}
+  //               value={this.state.enderecoLocalidade}
+  //             />
+  //           </Item>
+  //         </Col>
+  //         <Col style={{ flex: 0.3 }}>
+  //           <View style={styles.estadoContainer}>
+  //             <Picker
+  //               mode="dropdown"
+  //               placeholder="Estado"
+  //               selectedValue={this.state.enderecoEstado}
+  //               onValueChange={this.handleEstadoChange}
+  //             >
+  //               {estados.map(estado =>
+  //                 <Item key={estado.sigla} label={estado.sigla} value={estado.sigla} />)}
+  //             </Picker>
+  //           </View>
+  //         </Col>
+  //       </Grid> 
+  //     </View>
+  //   }
+  // }
+
   render() {
     console.log('props do signup', this.props.currentUser, 'state', this.state)
     const { isLoading } = this.state;
     return (
       <Container style={styles.container} pointerEvents={isLoading ? 'none' : 'auto'}>
         <HeaderView
-          title="Registrar-se"
+          title={currentUser && Object.keys(currentUser).length > 0 ? 'Minha Conta' : 'Registrar-se'}
           onBack={this.onClickBackButton}
         />
 				<Content style={styles.holder} keyboardShouldPersistTaps="handled">
@@ -436,115 +575,6 @@ class RegisterScreen extends Component {
                   keyboardType="number-pad"
                 />
               </Item>
-            {/* <View style={styles.logoTextHolder}>
-              <Label style={styles.logoText}>Endereço</Label>
-            </View> */}
-            {/* <Grid>
-              <Col style={{ flex: 0.6 }}>
-                <Item
-                  stackedLabel
-                >
-                  <Label>CEP</Label>
-                  <Input
-                    ref={(c) => { this.cepInput = c; }}
-                    onEndEditing={() => this.handleSearchCepButtonClick()}
-                    returnKeyType="next"
-                    keyboardType="phone-pad"
-                    onChangeText={applyMask(this, 'enderecoCep', brCep)}
-                    value={this.state.enderecoCep}
-                  />
-                </Item>
-              </Col>
-              <Col
-                style={{
-                  flex: 0.4,
-                  marginLeft: 10,
-                  justifyContent: 'center',
-                  alignItems: 'center'
-                }}
-              >
-                <Button
-                  block
-                  style={styles.cepButton}
-                  onPress={this.handleSearchCepButtonClick}
-                >
-                  <Text>
-                    Buscar
-                  </Text>
-                </Button>
-              </Col>
-            </Grid>
-            <Grid>
-              <Col style={{ flex: 0.7 }}>
-                <Item
-                  stackedLabel
-                >
-                  <Label>Logradouro</Label>
-                  <Input
-                    ref={(c) => { this.enderecoLogradouroInput = c; }}
-                    onSubmitEditing={() => this.focusInput('enderecoNumeroInput')}
-                    returnKeyType="next"
-                    onChangeText={enderecoLogradouro => this.setState({ enderecoLogradouro })}
-                    value={this.state.enderecoLogradouro}
-                  />
-                </Item>
-              </Col>
-              <Col style={{ flex: 0.3 }}>
-                <Item
-                  stackedLabel
-                >
-                  <Label>Nº</Label>
-                  <Input
-                    ref={(c) => { this.enderecoNumeroInput = c; }}
-                    onSubmitEditing={() => this.focusInput('enderecoBairroInput')}
-                    returnKeyType="next"
-                    onChangeText={enderecoNumero => this.setState({ enderecoNumero })}
-                    value={this.state.enderecoNumero}
-                  />
-                </Item>
-              </Col>
-            </Grid>
-            <Item
-              stackedLabel
-            >
-              <Label>Bairro</Label>
-              <Input
-                ref={(c) => { this.enderecoBairroInput = c; }}
-                onSubmitEditing={() => this.focusInput('enderecoLocalidadeInput')}
-                returnKeyType="next"
-                onChangeText={enderecoBairro => this.setState({ enderecoBairro })}
-                value={this.state.enderecoBairro}
-              />
-            </Item>
-            <Grid>
-              <Col style={{ flex: 0.7 }}>
-                <Item
-                  stackedLabel
-                >
-                  <Label>Cidade</Label>
-                  <Input
-                    ref={(c) => { this.enderecoLocalidadeInput = c; }}
-                    onSubmitEditing={() => this.focusInput('enderecoEstadoInput')}
-                    returnKeyType="next"
-                    onChangeText={enderecoLocalidade => this.setState({ enderecoLocalidade })}
-                    value={this.state.enderecoLocalidade}
-                  />
-                </Item>
-              </Col>
-              <Col style={{ flex: 0.3 }}>
-                <View style={styles.estadoContainer}>
-                  <Picker
-                    mode="dropdown"
-                    placeholder="Estado"
-                    selectedValue={this.state.enderecoEstado}
-                    onValueChange={this.handleEstadoChange}
-                  >
-                    {estados.map(estado =>
-                      <Item key={estado.sigla} label={estado.sigla} value={estado.sigla} />)}
-                  </Picker>
-                </View>
-              </Col>
-            </Grid> */}
               <Item
                 stackedLabel
               >
