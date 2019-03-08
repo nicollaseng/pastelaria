@@ -14,7 +14,7 @@ export const authReducer = (state = initial_state, action) => {
 		case SIGN_UP:
 			return { ...state, currentUser: action.payload }
 		case LOGOUT:
-			return { ...state, loginToken: action.payload };
+			return { ...state, currentUser: {} };
 		case UPDATE_DISTANCE:
 			return { ...state, currentUser: action.payload };
 		default:

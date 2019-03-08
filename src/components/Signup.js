@@ -22,7 +22,8 @@ import {
     Grid,
     Col,
     Picker,
-		Thumbnail,
+    Thumbnail,
+    Spinner
 } from 'native-base';
 import Dimensions from '../utils/dimensions'
 import HeaderView from './HeaderView';
@@ -32,6 +33,7 @@ import {colors} from '../theme/global'
 import { withNavigation } from 'react-navigation'
 import * as firebase from 'firebase'
 import uuid from 'uuid/v1'
+import moment from 'moment'
 
 const options = {
   title: 'Selecione uma foto de perfil',
@@ -127,7 +129,8 @@ class RegisterScreen extends Component {
 
 			// user register variables
 			location: {},
-			profilePhoto: {},
+      profilePhoto: {},
+      photo64: '',
       name: '',
       phone: '',
       email: '',
@@ -292,7 +295,7 @@ class RegisterScreen extends Component {
 	
 	signup = async () => {
     const { 
-       profilePhoto,
+       photo64,
        location,
        name,
        email,
@@ -305,33 +308,41 @@ class RegisterScreen extends Component {
 
 		let currentUser = {
       ...this.props.currentUser,
-			profilePhoto,
+			photo64,
 			location,
 			name,
       email,
       cpf,
       phone,
-      userId
+      userId,
+      createdAt: moment().format('DD/MM/YYYY HH:mm:ss'),
+      updatedAt: moment().format('DD/MM/YYYY HH:mm:ss'),
     }
-    this.setState({ loading: true })
+    this.setState({ isLoading: true })
     try {
       await firebase.auth().createUserWithEmailAndPassword(email,password) //creating auth user on firebase auth
         .then(response => {
           console.log('response', response)
-          firebase.database().ref(`users/${userId}`).set(currentUser) //creating user on firebase database
+          try {
+            firebase.database().ref(`users/${userId}`).set(currentUser) //creating user on firebase database
             .then(response => {
               console.log('response creating user database', response)
-              this.setState({ loading: false })
+              this.setState({ isLoading: false })
               this.props.signUp(currentUser)
               this.props.navigation.navigate('DashBoard')
             })
             .catch(err => {
               Alert.alert('Ops :(', 'Algo de errado aconteceu. Tente novamente')
+              this.setState({ isLoading: false })
               console.log('Error during creation user database', err)
             })
+          } catch (err) {
+            console.log('Error before creating user firebase databse')
+          }
         })
         .catch(err => {
           console.log('error firebase auth', err)
+          this.setState({ isLoading: false })
           Alert.alert('Ops :(', 'Parece que alguma coisa deu errado. Tente novamente em alguns instantes')
         })
     } catch(err){
@@ -380,8 +391,6 @@ class RegisterScreen extends Component {
 	 * The second arg is the callback which sends object: response (more info in the API Reference)
 	 */
 		ImagePicker.showImagePicker(options, (response) => {
-			console.log('Response = ', response);
-
 			if (response.didCancel) {
 				console.log('User cancelled image picker');
 			} else if (response.error) {
@@ -390,12 +399,9 @@ class RegisterScreen extends Component {
 				console.log('User tapped custom button: ', response.customButton);
 			} else {
 				const source = { uri: response.uri };
-
-				// You can also display the image using data:
-				// const source = { uri: 'data:image/jpeg;base64,' + response.data };
-
 				this.setState({
-					profilePhoto: source,
+          photo64: response.data,
+          profilePhoto: source
 				});
 			}
 		});
@@ -531,7 +537,7 @@ class RegisterScreen extends Component {
   // }
 
   render() {
-    console.log('props do signup', this.props.currentUser, 'state', this.state)
+    console.log('photo', this.state.profilePhoto)
     const { isLoading } = this.state;
     const { currentUser } = this.props
     return (
@@ -540,7 +546,10 @@ class RegisterScreen extends Component {
           title={currentUser && Object.keys(currentUser).length > 0 ? 'Minha Conta' : 'Registrar-se'}
           onBack={this.onClickBackButton}
         />
-				<Content style={styles.holder} keyboardShouldPersistTaps="handled">
+        {isLoading ? (
+          <Spinner />
+        ) : (
+          <Content style={styles.holder} keyboardShouldPersistTaps="handled">
 					<View style={{ alignItems: 'center'}}> 
 						<Label style={styles.logoText}>Perfil</Label>
 						<TouchableWithoutFeedback onPress={this.selectPhoto}>
@@ -656,6 +665,7 @@ class RegisterScreen extends Component {
             </Button>
           </View>
         </Content>
+        )}
       </Container>
     );
   }

@@ -55,9 +55,8 @@ class Dashboard extends Component {
     try {
 			await firebase.auth().signOut()
 				.then(() => {
-          alert('logout sucesso')
-					console.log('successfully logout')
-					this.setState({ loading: false })
+          this.setState({ loading: false })
+          this.props.logOut() // reset currentUser
 					this.props.navigation.navigate('Login')
 				})
 				.catch(err => {
