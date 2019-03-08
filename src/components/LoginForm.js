@@ -3,7 +3,9 @@ import {
 		ImageBackground,
 		TouchableOpacity,
 		View,
-		Image
+		Image,
+		Alert,
+		KeyboardAvoidingView
 	} from 'react-native'
 import {
 	 Content,
@@ -13,13 +15,29 @@ import {
 	 Label,
 	 Button,
 	 Text,
-	 Icon } from 'native-base'
+	 Icon,
+	 Spinner } from 'native-base'
 // import { LoginManager, AccessToken } from 'react-native-fbsdk';
 import { withNavigation } from 'react-navigation'
 import { iphonex } from "../utils/iphonex"
 import { logo, colors } from "../theme/global"
+import * as firebase from 'firebase'
 
 class LoginForm extends Component {
+
+	constructor(props){
+		super(props)
+		this.state = {
+			email: '',
+			password: ''
+		}
+	}
+
+	componentWillMount(){
+		firebase.auth().onAuthStateChanged(user => {
+			this.props.navigation.navigate('DashBoard')
+		})
+	}
 
 	navigate = () => {
 		this.props.navigation.navigate('CEP')
@@ -49,49 +67,85 @@ class LoginForm extends Component {
 
 		return; // Temporalily
 	}
+
+	login = () => {
+		const { email, password } = this.state
+		this.setState({ loading: true })
+		try {
+			firebase.auth().signInWithEmailAndPassword(email, password)
+				.then(response => {
+					console.log('successfully login', response)
+					this.setState({ loading: false })
+					this.props.navigation.navigate('DashBoard')
+				})
+				.catch(err => {
+					Alert.alert('Ops :(','E-mail ou senha inválidos')
+					console.log('Erro while login firebase', err)
+					this.setState({ loading: false })
+				})
+		}	catch (err) {	
+			Alert.alert('Ops :(','Algo de errado aconteceu. Tente novamente em alguns instantes')
+			console.log('Error before login firebase', err)
+		}
+	}
 	
 	render(){
-		return (
-			<View style={{ flex: 1 }}>
-			<View style={styles.logoContainer}>
-				<Image
-					source={logo}
-					style={styles.logo}
-				/>
-        </View>
-				{/* FUTURE VERSIONS - FACBEBOOK LOGIN */}
-				{/* <View style={{ paddingVertical: 10, paddingHorizontal: 10}}>
-					<Button
-						iconLeft
-						block
-						onPress={this.onClickFacebookButton}
-						style={styles.facebookButton}>
-					<Icon name="logo-facebook" />
-					<Text style={styles.facebookText}>
-						Entrar com Facebook
-					</Text>
-					</Button>
-					</View> */}
-				 <Content contentContainerStyle={styles.container}>
-          <Form style={styles.loginForm}>
-            <Item inlineLabel>
-              <Label style={styles.label}>Username</Label>
-              <Input style={[ styles.input ]} />
-            </Item>
-            <Item inlineLabel >
-              <Label style={styles.label}>Password</Label>
-              <Input style={[ styles.input ]} secureTextEntry />
-            </Item>
-          </Form>
-					<Button block style={ styles.button }>
-						<Text>Login</Text>
-					</Button>
-					<TouchableOpacity onPress={this.navigate}>
-						<Text style={styles.footer}> Cadastre-se </Text>
-					</TouchableOpacity>
-        </Content>
-			</View>
-		)
+		if(this.state.loading){
+			return <Spinner />
+		} else {
+			return (
+				<View style={{ flex: 1 }}>
+				<View style={styles.logoContainer}>
+					<Image
+						source={logo}
+						style={styles.logo}
+					/>
+					</View>
+					{/* FUTURE VERSIONS - FACBEBOOK LOGIN */}
+					{/* <View style={{ paddingVertical: 10, paddingHorizontal: 10}}>
+						<Button
+							iconLeft
+							block
+							onPress={this.onClickFacebookButton}
+							style={styles.facebookButton}>
+						<Icon name="logo-facebook" />
+						<Text style={styles.facebookText}>
+							Entrar com Facebook
+						</Text>
+						</Button>
+						</View> */}
+					 <View contentContainerStyle={styles.container}>
+						 <KeyboardAvoidingView>
+								<Form style={styles.loginForm}>
+									<Item inlineLabel>
+										<Label style={styles.label}>Email</Label>
+										<Input
+										style={[ styles.input ]}
+										onChangeText={(email) => this.setState({ email })}
+										value={this.state.email}
+										/>
+									</Item>
+									<Item inlineLabel >
+										<Label style={styles.label}>Password</Label>
+										<Input
+										style={[ styles.input ]}
+										onChangeText={(password) => this.setState({ password })}
+										value={this.state.password}
+										secureTextEntry
+										/>
+									</Item>
+								</Form>
+							</KeyboardAvoidingView>
+							<Button block style={ styles.button } onPress={this.login}>
+								<Text>Login</Text>
+							</Button>
+							<TouchableOpacity onPress={this.navigate}>
+								<Text style={styles.footer}> Cadastre-se </Text>
+							</TouchableOpacity>
+					</View>
+				</View>
+			)
+		}
 	}
 }
 
@@ -100,7 +154,7 @@ const styles = {
 		width: '100%',
 		height: '100%',
 	},
-	container: {
+		container: {
 		justifyContent: 'flex-end',
 		flex: 1,
 		paddingHorizontal: 20,
@@ -111,6 +165,7 @@ const styles = {
 	},
 	button: {
 		paddingVertical: 20,
+		marginHorizontal: 20,
 		backgroundColor: colors.button.primary
 	},
 	label: {
@@ -119,7 +174,7 @@ const styles = {
 		fontWeight: '700'
 	},
 	input: {
-		color: colors.login.input,
+		color: '#000',
 		fontSize: 13.5,
 		fontWeight: '600'
 	},

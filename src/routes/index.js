@@ -27,7 +27,7 @@ const AppNavigator = createStackNavigator({
 	}
 },
 {
-	initialRouteName: 'DashBoard',
+	initialRouteName: 'Login',
 	headerMode: 'none',
 	navigationOptions: {
 		headerVisible: false,

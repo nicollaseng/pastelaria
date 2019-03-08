@@ -33,8 +33,15 @@ import ChartScreen from "../screens/ChartScreen";
 import OrderScreen from "../screens/OrderScreen";
 import OrderDetailScreen from "../screens/OrderDetailScreen";
 import PaymentScreen from "../screens/PaymentScreen";
+import * as firebase from 'firebase'
 
 class Dashboard extends Component {
+  constructor(props){
+    super(props)
+    this.state = {
+      loading: false,
+    }
+  }
   closeDrawer = () => {
     this.drawer._root.close();
   };
@@ -44,10 +51,23 @@ class Dashboard extends Component {
   };
 
   handleSignOutButton = () => {
-    // onSignOut();
-    // console.log("is signedIn", isSignedIn());
-    // this.props.logOut(null);
-    return this.props.navigation.navigate("Login");
+    this.setState({ loading: true })
+    try {
+			firebase.auth().signOut()
+				.then(() => {
+					console.log('successfully logout')
+					this.setState({ loading: false })
+					this.props.navigation.navigate('Login')
+				})
+				.catch(err => {
+					Alert.alert('Ops :(','Algo de errado aconteceu. Tente novamente em alguns instantes')
+					console.log('Erro while logout firebase', err)
+					this.setState({ loading: false })
+				})
+		}	catch (err) {	
+			Alert.alert('Ops :(','Algo de errado aconteceu. Tente novamente em alguns instantes')
+			console.log('Error before logout firebase', err)
+		}
   };
 
   handleUserButton = () => {

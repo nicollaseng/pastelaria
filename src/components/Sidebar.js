@@ -78,7 +78,7 @@ const SideBar = props => (
             </ListItem>
           )}
         </View>
-      )}
+      )}g
     />
     </Content>
     <View style={{justifyContent: 'flex-end'}}>

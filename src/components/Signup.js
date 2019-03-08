@@ -30,6 +30,7 @@ import estados from '../utils/estados'
 import applyMask, { brPhone, unMask, brCpf, brCep } from '../utils/maks';
 import {colors} from '../theme/global'
 import { withNavigation } from 'react-navigation'
+import * as firebase from 'firebase'
 
 const options = {
   title: 'Selecione uma foto de perfil',
@@ -295,7 +296,8 @@ class RegisterScreen extends Component {
        name,
        email,
        cpf,
-       phone
+       phone,
+       password,
        } = this.state
 
 		let currentUser = {
@@ -307,10 +309,20 @@ class RegisterScreen extends Component {
       cpf,
       phone
     }
-    
-    this.props.signUp(currentUser)
-    //TODO - SEND DATA TO FIREBASE
-    this.props.navigation.navigate('DashBoard')
+    try {
+      firebase.auth().createUserWithEmailAndPassword(email,password)
+        .then(response => {
+          console.log('response', response)
+          this.props.signUp(currentUser)
+          this.props.navigation.navigate('DashBoard')
+        })
+        .catch(err => {
+          console.log('error firebase auth', err)
+          Alert.alert('Ops :(', 'Parece que alguma coisa deu errado. Tente novamente em alguns instantes')
+        })
+    } catch(err){
+      console.log('error before auth', err)
+    }
 	}
 
   focusInput(inputField) {
