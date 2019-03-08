@@ -16,17 +16,15 @@ import {
 } from "native-base";
 
 import {colors} from "../theme/global";
-import FooterView from "./FooterView.js";
-// import { onSignOut, isSignedIn } from "../services/auth.js";
 import { connect } from "react-redux";
 import { logOut } from "../actions/AuthAction.js";
 import { withNavigation } from "react-navigation";
-import Icon from "react-native-vector-icons/FontAwesome5";
 import _ from "lodash"
 import { setChart } from "../actions/ChartAction.js";
 import { tabNavigator } from "../actions/Navigation"
-import { submitOrder, setOrder } from "../actions/OrderAction"
-import uuid from 'uuid'
+import { submitOrder, setOrder, setRating } from "../actions/OrderAction"
+import { Rating, AirbnbRating } from 'react-native-ratings';
+import Modal from 'react-native-modal';
 
 class Chart extends Component {
 
@@ -35,7 +33,17 @@ class Chart extends Component {
     this.state = {
       totalPrice: 0,
       totalPriceWithDelivery: 0,
-      couponCode: '',
+			couponCode: '',
+			
+			// deliver status
+			deliverStatus: true,
+			
+			//Modal
+			visibleModal: false,
+
+			// rating
+			rating: '',
+			rated: true
     }
   }
 
@@ -145,18 +153,65 @@ class Chart extends Component {
 						</View>
 					</View>
         </View>
-				<TouchableOpacity onPress={this.evaluation}>
-					<Text style={styles.evaluate}> Avaliar </Text>
-				</TouchableOpacity>
+				{this.state.deliverStatus && (
+					<TouchableOpacity onPress={() => this.setState({ visibleModal: true })}>
+						<Text style={styles.evaluate}> Avaliar </Text>
+					</TouchableOpacity>
+				)}
 			</View>
       )
     }
-  }
+	}
+	
+	_renderModal = () => {
+		const { rated } = this.state
+		if(rated){
+			return (
+				<View style={styles.modalContainer}>
+					<Text style={styles.ratingText}> Avalie esta entrega</Text>
+					<Rating
+						type='star'
+						ratingCount={5}
+						imageSize={40}
+						showRating
+						onFinishRating={this.ratingCompleted}
+					/>
+					<TouchableOpacity style={styles.finish} onPress={this._setOrderRating}>
+            <Text style={styles.finishText}>Finalizar</Text>
+          </TouchableOpacity>
+				</View>
+			)
+		} else {
+			return (
+				<Text style={styles.rated}> Obrigado por sua avaliação. </Text>
+			)
+		}
+	}
+
+	_valueChanged(rating) {
+		console.log('rating', rating)
+    this.setState({ rating })
+	}
+	
+	_setOrderRating = () => {
+		let rating = [
+			...this.props.rating,
+			{
+				order: this.props.order.orderNumber,
+				rating: this.state.rating
+			}
+		]
+		this.props.setRating(rating)
+		return this.setState({ visibleModal: false, rating: '' })
+	}
 
   render() {
     console.log('props do order detail', this.props )
     return (
       <View style={styles.container}>
+				<Modal isVisible={this.state.visibleModal}>
+					{this._renderModal()}
+				</Modal>
         {/* <View style={styles.deliverContainer}>
           <Text style={styles.deliverText}>ENTREGAR EM: </Text>
           <Text style={styles.addressText}>{`${this.props.address.address}, ${this.props.address.addressNumber}`}</Text>
@@ -174,12 +229,13 @@ const mapStateToProps = state => ({
   address: state.authReducer.currentUser,
   customer: state.authReducer.currentUser,
 	allOrders: state.order.allOrders,
-	order: state.navigation.data
+	order: state.navigation.data,
+	rating: state.order.rating,
 });
 
 export default connect(
   mapStateToProps,
-  { logOut, setChart, submitOrder, tabNavigator }
+  { logOut, setChart, submitOrder, tabNavigator, setRating }
 )(withNavigation(Chart));
 
 const styles = {
@@ -326,5 +382,38 @@ const styles = {
 		padding: 15,
 		fontSize: 15,
 		fontWeight: '400'
+	},
+	finish: {
+    marginVertical: 15,
+    backgroundColor: colors.primary,
+    marginHorizontal: 10,
+    borderRadius: 2
+  },
+  finishText: {
+    color: "#fff",
+    fontSize: 15,
+    fontWeight: '500',
+    padding: 10,
+    textAlign: 'center'
+	},
+	modalContainer: {
+		flex: 0.8,
+		backgroundColor: '#fff',
+		justifyContent: 'space-around',
+		alignItems: 'center'
+	},
+	rated: {
+		color: colors.primary,
+		fontSize: 22,
+		fontWeight: '500',
+		textAlign: 'center',
+		padding: 20
+	},
+	ratingText: {
+		fontSize: 22,
+		fontWeight: '600',
+		color: colors.primary,
+		padding: 10,
+		textAlign: 'center'
 	}
 };

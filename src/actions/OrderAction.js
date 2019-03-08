@@ -1,4 +1,4 @@
-import { ORDER, ALL_ORDER } from './actionTypes'
+import { ORDER, ALL_ORDER, RATING } from './actionTypes'
 
 const submitOrder = param => {
 	return ({
@@ -14,7 +14,15 @@ const setOrder = param => {
 	})
 }
 
+const setRating = param => {
+	return ({
+		type: RATING,
+		payload: param
+	})
+}
+
 export {
   submitOrder,
-  setOrder
+  setOrder,
+  setRating
 }

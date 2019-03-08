@@ -8,6 +8,7 @@ const UPDATE_DISTANCE = 'UPDATE_DISTANCE';
 const ORDER = 'ORDER';
 const CHART = 'CHART';
 const ALL_ORDER = 'ALL_ORDER';
+const RATING = 'RATING';
 
 
 export { 
@@ -20,5 +21,6 @@ export {
 	UPDATE_DISTANCE,
     ORDER,
 	CHART,
-	ALL_ORDER
+	ALL_ORDER,
+	RATING
 }
