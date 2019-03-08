@@ -154,13 +154,24 @@ class Chart extends Component {
             <Text style={styles.payment}>Pagamento</Text>
             <TouchableWithoutFeedback onPress={this.setPayment}>
               <View style={styles.paymentContainer}>
-                <Text style={styles.paymentType}>Formas de pagamento</Text>
-                <Text style={styles.paymentSelect}>Escolher</Text>
+                <View>
+                  <Text style={styles.paymentType}>Formas de pagamento</Text>
+                  <Text style={styles.leftOrderTextSubItemDescription}>
+                    {this.props.payment && this.props.payment.length > 0 ? this.props.payment : ''}
+                  </Text>
+                </View>
+                <Text style={styles.paymentSelect}>
+                  {this.props.payment && this.props.payment.length > 0 ? 'Trocar' : 'Escolher'}
+                </Text>
               </View>
             </TouchableWithoutFeedback>
           </View>
-          <TouchableOpacity style={styles.finish} onPress={() => this.state.payment ? this.submitOrder(fullPrice) : this.setPayment()}>
-            <Text style={styles.finishText}>{this.state.payment ? 'Finalizar' : 'Selecionar pagamento'}</Text>
+          <TouchableOpacity
+            style={styles.finish}
+            onPress={() => this.props.payment && this.props.payment.length > 0 ? this.submitOrder(fullPrice) : this.setPayment()}>
+            <Text style={styles.finishText}>
+              {this.props.payment && this.props.payment.length > 0 ? 'Finalizar' : 'Selecionar pagamento'}
+            </Text>
           </TouchableOpacity>
         </View>
       )
@@ -187,7 +198,9 @@ class Chart extends Component {
       customer,
       dateDay: moment().date(),
       dateMonth: moment().month().length === 1 ? `0${moment().month() + 1}` :moment().month()+1 ,
-      date: moment().format('DD/MM/YYYY HH:mm:ss')
+      date: moment().format('DD/MM/YYYY HH:mm:ss'),
+      paymentMethod: this.props.payment,
+      paymentChange: this.props.paymentChange
     }
     const orderForDetails = {
       title: orderNumber, data: [order]
@@ -195,12 +208,12 @@ class Chart extends Component {
     console.log('order to send', order)
     this.props.submitOrder(order) // current order only
     this.props.setOrder([...this.props.allOrders, orderForDetails]) // set all orders for order view section list
-    this.props.setChart({}) // make empty chart again
+    this.props.setChart([]) // make empty chart again
     this.props.tabNavigator('order') //navigate to orders
   }
 
   render() {
-    console.log("props", this.props, this.state.totalPrice);
+    console.log("props do chart", this.props);
     const { chart } = this.props   
     let totalPrice = 0
     chart.map(itemChart => {
@@ -224,7 +237,9 @@ const mapStateToProps = state => ({
   chart: state.chart.chart,
   address: state.authReducer.currentUser,
   customer: state.authReducer.currentUser,
-  allOrders: state.order.allOrders
+  allOrders: state.order.allOrders,
+  payment: state.chart.payment,
+  paymentChange: state.chart.paymentChange
 });
 
 export default connect(

@@ -13,7 +13,11 @@ import {
 import {
   Spinner,
   Content,
-  Input
+	Input,
+	List,
+	ListItem,
+	Left,
+	Right
 } from "native-base";
 
 import {colors} from "../theme/global";
@@ -24,13 +28,14 @@ import { logOut } from "../actions/AuthAction.js";
 import { withNavigation } from "react-navigation";
 import Icon from "react-native-vector-icons/FontAwesome5";
 import _ from "lodash"
-import { setChart } from "../actions/ChartAction.js";
+import { setChart, setPayment } from "../actions/ChartAction.js";
 import { tabNavigator } from "../actions/Navigation"
 import { submitOrder, setOrder } from "../actions/OrderAction"
-import uuid from 'uuid'
-import moment from 'moment'
+import { payments } from "../utils/paymentMethods"
+import { TextInputMask } from 'react-native-masked-text'
+import Modal from 'react-native-modal'
 
-class Chart extends Component {
+class Payment extends Component {
 
   constructor(props){
     super(props)
@@ -38,199 +43,106 @@ class Chart extends Component {
       totalPrice: 0,
       totalPriceWithDelivery: 0,
       couponCode: '',
-      payment: false,
+			payment: false,
+			paymentChange: '',
+			
+			//modal
+			visibleModal: false
     }
   }
 
-  componentWillReceiveProps(nextProps){
-    let { chart } = nextProps
-    let totalPriceArray = []
-    let totalPrice = 0
-    if(chart && chart.length > 0) {
-      return chart.map(itemChart => totalPrice = totalPrice + parseFloat(itemChart.itemPrice))
-        
-        // this.setState({ totalPrice: parseFloat(this.state.totalPrice) + parseFloat(itemChart.itemPrice)},
-          // () => this.setState({ totalPriceWithDelivery: parseFloat(this.state.totalPrice) + 0})
-          //at this moment we should sum with Frete. Waiting for customer business estrategy for frete
-      }
-      console.log('total price', totalPrice)
-      this.setState({totalPrice})
-    }
-
-  _renderChart = () => {
-    let { chart } = this.props
-    if(chart && chart.length > 0) {
-      return chart.map(itemChart => {
+  _renderPayment = () => {
+      return payments.map(payment => {
         return (
-          <View style={styles.orderContainer}>
-            <View style={styles.orderSubContainer}>
-              <View style={styles.leftOrder}>
-                <Text style={styles.leftOrderText}>
-                  {itemChart.itemQuantity}x {itemChart.item}
-                </Text>
-                {this._renderSubItems(itemChart)}
-              </View>
-              <View style={styles.rightOrder}>
-                <Text style={styles.rightOrderText}>
-                  R$ {itemChart.itemPrice}
-                </Text>
-                <TouchableOpacity onPress={() => this._deleteItem(itemChart)}>
-                  <Icon name="trash" size={25} color={colors.primary} />
-                </TouchableOpacity>
-              </View>
-            </View>
-          </View>
+					<ListItem
+						 selected
+						 onPress={() => payment.method === 'Dinheiro' ? this._setChange(payment.method) : this._setPayment(payment.method)}
+					>
+							<Left>
+									<Text>{payment.method}</Text>
+							</Left>
+							<Right>
+									<Icon name={payment.icon} size={25} />
+							</Right>
+					</ListItem>
         )
       })
-    } else {
-      return (
-        <Text style={styles.emptyChart}>Carrinho Vazio</Text>
-      )
-    }
-  }
+		}
 
-  _deleteItem = (param) => {
-    let { chart } = this.props
-    var newChart = _.clone(chart)
-    if(newChart && newChart.length > 0) {
-      let index = _.findIndex(newChart, e => e.item === param.item)
-      console.log('index', index, newChart)
-      if(index !== -1){
-        _.pullAt(newChart, index)
-        console.log('new chart', newChart)
-        return this.props.setChart(newChart)
-      }
-    }
-  }
+	_setChange = (paymentMethod) => {
+		this.setState({ visibleModal: true, paymentMethod })
+	}
+	
+	_setPayment = (payment, paymentChange) => {
+		this.props.setPayment(payment, paymentChange)
+		return this.props.tabNavigator('chart')
+	}
 
-  _renderSubItems = (param) => {
-    if(param.itemIngredientDescription && param.itemIngredientDescription.length > 0){
-      return param.itemIngredientDescription.map(itemExtraDescription => {
-        return (
-          <Text style={styles.leftOrderTextSubItemDescription}>- {itemExtraDescription}</Text>
-        )
-      })
-    }
-  }
+	_renderModal = () => {
+			return (
+				<View style={styles.modalContainer}>
+					<View>
+						<Text style={styles.moneyChange}> Troco para quanto?</Text>
+						<Text style={styles.moneyChangeDescription}>
+						 Insira o quanto irá pagar em dinheiro para que nosso entregador leve o seu troco
+						</Text>
+					</View>
+					<View style={styles.moneyContainer}>
+						<Text style={styles.money}>R$</Text>
+						<TextInputMask
+							type={'money'}
+							value={this.state.paymentChange}
+							onChangeText={paymentChange => {
+								this.setState({
+									paymentChange
+								})
+							}}
+						/>
+					</View>
+					<View>
+						<TouchableOpacity style={styles.finish} onPress={() => this._setPayment(this.state.paymentMethod, this.state.paymentChange)}>
+							<Text style={styles.finishText}>Finalizar</Text>
+						</TouchableOpacity> 
+						<TouchableOpacity onPress={() => {
+							this._setPayment(this.state.paymentMethod, null)
+							this.setState({ visibleModal: false, paymentMethod: '' })
+						}}>
+							<Text style={styles.nonChangeText}>Não preciso de troco</Text>
+						</TouchableOpacity> 
+					</View>
 
-  _renderSubChart = (fullPrice) => {
-    const { chart } = this.props
-    if(chart && chart.length > 0){
-      return (
-        <View>
-          <View>
-            <TouchableOpacity onPress={() => this.props.tabNavigator('home')}>
-              <Text style={styles.addMore}> AdicionarRRRRR </Text>
-            </TouchableOpacity>
-          </View>
-          <View style={styles.orderSubContainer}>
-            <View style={styles.leftOrder}>
-              <Text style={styles.leftOrderTextSubItemDescription}>Subtotal</Text>
-              <Text style={styles.leftOrderTextSubItemDescription}>Taxa de Entrega</Text>
-              <Text style={styles.leftOrderTotalText}>Total</Text>
-            </View>
-            <View style={styles.leftOrder}>
-              <Text style={[styles.leftOrderTextSubItemDescription, { textAlign: 'right'}]}>R$ {fullPrice}</Text>
-              <Text style={[styles.leftOrderTextSubItemDescription, { color: colors.text.free, textAlign:'right' }]}>Grátis</Text>
-              <Text style={[styles.leftOrderTotalText, { textAlign: 'right' }]}>R$ {fullPrice}</Text>
-            </View>
-          </View>
-          <View style={styles.couponContainer}>
-            <Icon name="ticket-alt" size={45} color="#a6a6a6" />
-            <View style={styles.couponCodeContainer}>
-              <Text style={[styles.leftOrderTextSubItemDescription, { fontSize: 18, fontWeight: '400', marginTop: 10 }]}>
-                Cupom de desconto
-              </Text>
-              <Input
-                style={styles.inputCoupon}
-                value={this.state.couponCode}
-                onChangeText={(couponCode) => this.setState({ couponCode })}
-                placeholder="Insira um código"
-                placeholderTextColor="#808080"
-              />
-            </View>
-          </View>
-          <View style={styles.paymentContainerMajor}>
-            <Text style={styles.payment}>Pagamento</Text>
-            <TouchableWithoutFeedback onPress={this.setPayment}>
-              <View style={styles.paymentContainer}>
-                <Text style={styles.paymentType}>Formas de pagamento</Text>
-                <Text style={styles.paymentSelect}>Escolher</Text>
-              </View>
-            </TouchableWithoutFeedback>
-          </View>
-          <TouchableOpacity style={styles.finish} onPress={() => this.state.payment ? this.submitOrder(fullPrice) : this.setPayment()}>
-            <Text style={styles.finishText}>{this.state.payment ? 'Finalizar' : 'Selecionar pagamento'}</Text>
-          </TouchableOpacity>
-        </View>
-      )
-    }
-  }
-
-  setPayment = () => {
-    return this.props.tabNavigator('payment')
-  }
-
-  submitOrder = (price) => {
-    Alert.alert('Hmmmmm', 'Seu pedido foi realizado com sucesso! Acompanhe o status de seu pedido na aba Pedidos')
-    const { chart, customer } = this.props
-    const { totalPrice, totalPriceWithDelivery, couponCode } = this.state
-    const orderNumber = Math.floor(Math.random() * 10001)
-    const orderID = uuid()
-    const order = {
-      orderNumber,
-      orderID,
-      chart,
-      totalPrice: price,
-      totalPriceWithDelivery: price,
-      couponCode,
-      customer,
-      dateDay: moment().date(),
-      dateMonth: moment().month().length === 1 ? `0${moment().month() + 1}` :moment().month()+1 ,
-      date: moment().format('DD/MM/YYYY HH:mm:ss')
-    }
-    const orderForDetails = {
-      title: orderNumber, data: [order]
-    }
-    console.log('order to send', order)
-    this.props.submitOrder(order) // current order only
-    this.props.setOrder([...this.props.allOrders, orderForDetails]) // set all orders for order view section list
-    this.props.setChart({}) // make empty chart again
-    this.props.tabNavigator('order') //navigate to orders
-  }
+				</View>
+			)
+		}
 
   render() {
-    console.log("props", this.props, this.state.totalPrice);
-    const { chart } = this.props   
-    let totalPrice = 0
-    chart.map(itemChart => {
-      totalPrice = parseFloat(totalPrice) + parseFloat(itemChart.itemPrice)
-    })
     return (
       <View style={styles.container}>
-        <View style={styles.deliverContainer}>
-          <Text style={styles.deliverText}>ENTREGAR EM: </Text>
-          <Text style={styles.addressText}>{`${this.props.address.address}, ${this.props.address.addressNumber}`}</Text>
-        </View>
-         <Content>
-           {this._renderChart()}
-           {this._renderSubChart(totalPrice)}
-         </Content>
-     </View>
+				<Modal isVisible={this.state.visibleModal}>
+					{this._renderModal()}
+				</Modal>
+        <Text style={styles.paymentType}>FORMAS DE PAGAMENTO</Text>
+        <Text style={styles.paymentDescription}>Escolha uma das opções aceitas por este estabelecimento</Text>
+        <Content>
+            <View>
+                <Text style={styles.deliverPaymentHeader}>Pague na entrega</Text>
+            </View>
+            <List>
+                {this._renderPayment()}
+            </List>
+        </Content>
+      </View>
     );
   }
 }
 const mapStateToProps = state => ({
-  chart: state.chart.chart,
-  address: state.authReducer.currentUser,
-  customer: state.authReducer.currentUser,
-  allOrders: state.order.allOrders
+	payment: state.chart.payment,
 });
 
 export default connect(
   mapStateToProps,
-  { logOut, setChart, submitOrder, tabNavigator, setOrder }
-)(withNavigation(Chart));
+  { setPayment, tabNavigator }
+)(withNavigation(Payment));
 
 const styles = {
   container: {
@@ -373,18 +285,74 @@ const styles = {
     paddingVertical: 15,
   },
   paymentType: {
-    fontSize: 13.5,
+    fontSize: 14.5,
     color: '#000',
-    fontWeight: '400',
-    paddingVertical: 1,
-    textAlign: 'left'
+    fontWeight: '500',
+    paddingVertical: 10,
+    textAlign: 'center'
   },
-  paymentSelect: {
-    fontSize: 13.5,
-    color: colors.primary,
-    fontWeight: '300',
-    paddingVertical: 1,
-    textAlign: 'right',
-    marginRigth: 10,
-  }
+  paymentDescription: {
+    color: '#ccc',
+    textAlign: 'center',
+    paddingVertical: 3
+  },
+  deliverPaymentHeader: {
+    fontSize: 18,
+    color: '#000',
+    fontWeight: '500',
+    paddingVertical: 10,
+    textAlign: 'left',
+    marginLeft: 6
+	},
+	modalContainer: {
+		borderRadius: 5,
+		flex: 0.6,
+		backgroundColor: '#f2f2f2',
+		justifyContent: 'space-around',
+		alignItems: 'center'
+	},
+	finish: {
+    marginVertical: 15,
+    backgroundColor: colors.primary,
+    marginHorizontal: 10,
+    borderRadius: 2
+  },
+  finishText: {
+    color: "#fff",
+    fontSize: 15,
+    fontWeight: '500',
+    padding: 10,
+    textAlign: 'center'
+	},
+	moneyContainer: {
+		flexDirection: 'row',
+		alignItems: 'center'
+	},
+	money: {
+		fontSize: 18,
+		fontWeight: '600',
+		marginRight: 5,
+		color: '#000'
+		// marginVertical: 10
+	},
+	moneyChange: {
+		fontSize: 15.5,
+		fontWeight: '600',
+		marginRight: 5,
+		color: '#000',
+		textAlign: 'center',
+	},
+	moneyChangeDescription: {
+		fontSize: 14,
+		fontWeight: '400',
+		color: '#808080',
+		textAlign: 'center',
+		paddingVertical: 5,
+	},
+	nonChangeText: {
+		color: '#808080',
+		fontSize: 14,
+		textAlign: 'center',
+		paddingVertical: 6.5
+	}
 };

@@ -1,8 +1,18 @@
-import { CHART } from './actionTypes'
+import { CHART, PAYMENT } from './actionTypes'
 
-export const setChart = param => {
+const setChart = param => {
     return ({
         type: CHART,
         payload: param
     })
 }
+
+const setPayment = (payment, paymentChange) => {
+    return ({
+        type: PAYMENT,
+        payload: payment,
+        paymentChange
+    })
+}
+
+export { setChart, setPayment }

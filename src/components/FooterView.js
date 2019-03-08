@@ -41,6 +41,7 @@ class FooterView extends React.Component {
     }
   }
 
+
   renderIcon = icon => ({ isActive }) => (
     // <Button transparent style={styles.button}>
       <Icon size={24} color={isActive ? colors.icon.activated : colors.icon.deactivated} name={icon} />

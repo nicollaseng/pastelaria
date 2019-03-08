@@ -22,5 +22,5 @@ export {
     ORDER,
 	CHART,
 	ALL_ORDER,
-	RATING
+	RATING,
 }
