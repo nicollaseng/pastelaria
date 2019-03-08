@@ -20,8 +20,11 @@ import {
 // import { LoginManager, AccessToken } from 'react-native-fbsdk';
 import { withNavigation } from 'react-navigation'
 import { iphonex } from "../utils/iphonex"
+import { signUp } from '../actions/AuthAction'
 import { logo, colors } from "../theme/global"
+import { connect } from 'react-redux'
 import * as firebase from 'firebase'
+import _ from "lodash"
 
 class LoginForm extends Component {
 
@@ -29,14 +32,21 @@ class LoginForm extends Component {
 		super(props)
 		this.state = {
 			email: '',
-			password: ''
+			password: '',
+			loading: false,
 		}
 	}
 
 	componentWillMount(){
 		firebase.auth().onAuthStateChanged(user => {
-			console.log('USER ON AUTH STATE CHANGE', user)
-			this.props.navigation.navigate(user ? 'DashBoard' : 'Login')
+			if(user){
+				this.setState({ loading: true })
+				console.log('USER ON AUTH STATE CHANGE', user.toJSON())
+				let userJson = user.toJSON()
+				let userUid = userJson.uid
+				this._setUserInfo(userUid)
+			}
+			// this.props.navigation.navigate(user ? 'DashBoard' : 'Login')
 		})
 	}
 
@@ -69,15 +79,15 @@ class LoginForm extends Component {
 		return; // Temporalily
 	}
 
-	login = () => {
+	login = async () => {
 		const { email, password } = this.state
 		this.setState({ loading: true })
 		try {
-			firebase.auth().signInWithEmailAndPassword(email, password)
+			await firebase.auth().signInWithEmailAndPassword(email, password)
 				.then(response => {
+					let key = response.user.uid
+					this._setUserInfo(key)
 					console.log('successfully login', response)
-					this.setState({ loading: false })
-					this.props.navigation.navigate('DashBoard')
 				})
 				.catch(err => {
 					Alert.alert('Ops :(','E-mail ou senha inválidos')
@@ -89,64 +99,77 @@ class LoginForm extends Component {
 			console.log('Error before login firebase', err)
 		}
 	}
+
+	_setUserInfo = async key => {
+		await firebase.database().ref('users').once('value', data => {
+			if(data){
+				let dataJson = data.toJSON()
+				let currentUser = dataJson[key]
+				console.log('data', data.toJSON(), currentUser)
+				this.setState({ loading: false })
+				this.props.signUp(currentUser)
+				this.props.navigation.navigate('DashBoard')
+			}
+		})
+	}
 	
 	render(){
-		if(this.state.loading){
-			return <Spinner />
-		} else {
-			return (
-				<View style={{ flex: 1 }}>
-				<View style={styles.logoContainer}>
-					<Image
-						source={logo}
-						style={styles.logo}
-					/>
-					</View>
-					{/* FUTURE VERSIONS - FACBEBOOK LOGIN */}
-					{/* <View style={{ paddingVertical: 10, paddingHorizontal: 10}}>
-						<Button
-							iconLeft
-							block
-							onPress={this.onClickFacebookButton}
-							style={styles.facebookButton}>
-						<Icon name="logo-facebook" />
-						<Text style={styles.facebookText}>
-							Entrar com Facebook
-						</Text>
-						</Button>
-						</View> */}
-					 <View contentContainerStyle={styles.container}>
-						 <KeyboardAvoidingView>
-								<Form style={styles.loginForm}>
-									<Item inlineLabel>
-										<Label style={styles.label}>Email</Label>
-										<Input
-										style={[ styles.input ]}
-										onChangeText={(email) => this.setState({ email })}
-										value={this.state.email}
-										/>
-									</Item>
-									<Item inlineLabel >
-										<Label style={styles.label}>Password</Label>
-										<Input
-										style={[ styles.input ]}
-										onChangeText={(password) => this.setState({ password })}
-										value={this.state.password}
-										secureTextEntry
-										/>
-									</Item>
-								</Form>
-							</KeyboardAvoidingView>
-							<Button block style={ styles.button } onPress={this.login}>
-								<Text>Login</Text>
-							</Button>
-							<TouchableOpacity onPress={this.navigate}>
-								<Text style={styles.footer}> Cadastre-se </Text>
-							</TouchableOpacity>
-					</View>
+		return (
+			<View style={{ flex: 1 }}>
+			<View style={styles.logoContainer}>
+				<Image
+					source={logo}
+					style={styles.logo}
+				/>
 				</View>
-			)
-		}
+				{this.state.loading ? (
+					<Spinner />
+				) : (
+					<View contentContainerStyle={styles.container}>
+						<KeyboardAvoidingView>
+							<Form style={styles.loginForm}>
+								<Item inlineLabel>
+									<Label style={styles.label}>Email</Label>
+									<Input
+									style={[ styles.input ]}
+									onChangeText={(email) => this.setState({ email })}
+									value={this.state.email}
+									/>
+								</Item>
+								<Item inlineLabel >
+									<Label style={styles.label}>Password</Label>
+									<Input
+									style={[ styles.input ]}
+									onChangeText={(password) => this.setState({ password })}
+									value={this.state.password}
+									secureTextEntry
+									/>
+								</Item>
+							</Form>
+						</KeyboardAvoidingView>
+						<Button block style={ styles.button } onPress={this.login}>
+							<Text>Login</Text>
+						</Button>
+						<TouchableOpacity onPress={this.navigate}>
+							<Text style={styles.footer}> Cadastre-se </Text>
+						</TouchableOpacity>
+					</View>
+				)}
+				{/* FUTURE VERSIONS - FACBEBOOK LOGIN */}
+				{/* <View style={{ paddingVertical: 10, paddingHorizontal: 10}}>
+					<Button
+						iconLeft
+						block
+						onPress={this.onClickFacebookButton}
+						style={styles.facebookButton}>
+					<Icon name="logo-facebook" />
+					<Text style={styles.facebookText}>
+						Entrar com Facebook
+					</Text>
+					</Button>
+					</View> */}
+			</View>
+		)
 	}
 }
 
@@ -210,4 +233,4 @@ const styles = {
 	},
 }
 
-export default withNavigation(LoginForm)
+export default connect(null, { signUp })(withNavigation(LoginForm))

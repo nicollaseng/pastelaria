@@ -324,12 +324,12 @@ class RegisterScreen extends Component {
         .then(response => {
           console.log('response', response)
           try {
-            firebase.database().ref(`users/${userId}`).set(currentUser) //creating user on firebase database
+            firebase.database().ref(`users/${response.user.uid}`).set(currentUser) //creating user on firebase database
             .then(response => {
               console.log('response creating user database', response)
               this.setState({ isLoading: false })
-              this.props.signUp(currentUser)
-              this.props.navigation.navigate('DashBoard')
+                this.props.signUp(currentUser)
+                this.props.navigation.navigate('DashBoard')
             })
             .catch(err => {
               Alert.alert('Ops :(', 'Algo de errado aconteceu. Tente novamente')
@@ -337,7 +337,7 @@ class RegisterScreen extends Component {
               console.log('Error during creation user database', err)
             })
           } catch (err) {
-            console.log('Error before creating user firebase databse')
+            console.log('Error before creating user firebase databse', err)
           }
         })
         .catch(err => {
