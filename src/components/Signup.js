@@ -31,6 +31,7 @@ import applyMask, { brPhone, unMask, brCpf, brCep } from '../utils/maks';
 import {colors} from '../theme/global'
 import { withNavigation } from 'react-navigation'
 import * as firebase from 'firebase'
+import uuid from 'uuid/v1'
 
 const options = {
   title: 'Selecione uma foto de perfil',
@@ -289,7 +290,7 @@ class RegisterScreen extends Component {
 		this.signup()
 	};
 	
-	signup = () => {
+	signup = async () => {
     const { 
        profilePhoto,
        location,
@@ -300,6 +301,8 @@ class RegisterScreen extends Component {
        password,
        } = this.state
 
+    const userId = uuid()
+
 		let currentUser = {
       ...this.props.currentUser,
 			profilePhoto,
@@ -307,14 +310,25 @@ class RegisterScreen extends Component {
 			name,
       email,
       cpf,
-      phone
+      phone,
+      userId
     }
+    this.setState({ loading: true })
     try {
-      firebase.auth().createUserWithEmailAndPassword(email,password)
+      await firebase.auth().createUserWithEmailAndPassword(email,password) //creating auth user on firebase auth
         .then(response => {
           console.log('response', response)
-          this.props.signUp(currentUser)
-          this.props.navigation.navigate('DashBoard')
+          firebase.database().ref(`users/${userId}`).set(currentUser) //creating user on firebase database
+            .then(response => {
+              console.log('response creating user database', response)
+              this.setState({ loading: false })
+              this.props.signUp(currentUser)
+              this.props.navigation.navigate('DashBoard')
+            })
+            .catch(err => {
+              Alert.alert('Ops :(', 'Algo de errado aconteceu. Tente novamente')
+              console.log('Error during creation user database', err)
+            })
         })
         .catch(err => {
           console.log('error firebase auth', err)
