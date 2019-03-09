@@ -48,9 +48,10 @@ class Order extends Component {
 					let allOrders = []
 					if(orders && orders.length > 0){
 						orders.map(order => {
-							allOrders = [...allOrders, {title: '', data: [order]}]
+							console.log('orderrr', order)
+							allOrders = [...allOrders, {title: '', data: [order], updatedAt: order.updatedAt }]
 						})
-						let allOrdersOrdered = _.orderBy(allOrders, ['updatedAt'], ['asc'] )
+						let allOrdersOrdered = _.orderBy(allOrders, ['updatedAt'], ['desc'] )
 						this.setState({ allOrders: allOrdersOrdered, isLoading: false })
 						console.log('aquiii',allOrdersOrdered)
 					} else {

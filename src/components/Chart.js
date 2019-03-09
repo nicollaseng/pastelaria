@@ -220,7 +220,7 @@ class Chart extends Component {
 
     // order for details is only for order list at order's screen - sectionlist
     const orderForDetails = [
-      {title: orderNumber, data: [order], updatedAt: moment().format('DD/MM/YYYY HH:mm:ss')}
+      {title: orderNumber, data: [order]}
     ]
     console.log('order to send', order)
     firebase.database().ref(`orders/${userId}/${orderId}`).set(order)
