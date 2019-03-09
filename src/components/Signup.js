@@ -304,8 +304,6 @@ class RegisterScreen extends Component {
        password,
        } = this.state
 
-    const userId = uuid()
-
 		let currentUser = {
       ...this.props.currentUser,
 			photo64,
@@ -314,7 +312,7 @@ class RegisterScreen extends Component {
       email,
       cpf,
       phone,
-      userId,
+      orders: '',
       createdAt: moment().format('DD/MM/YYYY HH:mm:ss'),
       updatedAt: moment().format('DD/MM/YYYY HH:mm:ss'),
     }
@@ -324,11 +322,14 @@ class RegisterScreen extends Component {
         .then(response => {
           console.log('response', response)
           try {
-            firebase.database().ref(`users/${response.user.uid}`).set(currentUser) //creating user on firebase database
-            .then(response => {
-              console.log('response creating user database', response)
+            firebase.database().ref(`users/${response.user.uid}`).set({
+              ...currentUser,
+              userId: response.user.uid
+            }) //creating user on firebase database
+            .then(() => {
+              console.log('response creating user database')
               this.setState({ isLoading: false })
-                this.props.signUp(currentUser)
+                this.props.signUp({ ...currentUser,userId: response.user.uid})
                 this.props.navigation.navigate('DashBoard')
             })
             .catch(err => {

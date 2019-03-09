@@ -11,17 +11,9 @@ import {
 } from "react-native";
 
 import {
-  Header,
-  Body,
-  Left,
-  Right,
-  Title,
-  Icon,
-  Drawer,
-  Button,
   Container,
-  Spinner,
-  Content
+	Content,
+	Spinner
 } from "native-base";
 
 import SideBar from "./Sidebar";
@@ -33,8 +25,29 @@ import { connect } from "react-redux";
 import { logOut } from "../actions/AuthAction.js";
 import { withNavigation } from "react-navigation";
 import { tabNavigator } from "../actions/Navigation"
+import * as firebase from 'firebase'
 
 class Order extends Component {
+	constructor(props){
+		super(props)
+		this.state = {
+			allOrders: [],
+			isLoading: false
+		}
+	}
+
+	componentWillMount(){
+		const { userId } = this.props
+		this.setState({ isLoading: true })
+		firebase.database().ref(`orders/${userId}`).once('value', (snapshot) => {
+			let orders = Object.values(snapshot.val())
+			let allOrders = []
+			orders.map(order => {
+				allOrders = [...allOrders, {title: '', data: [order]}]
+			})
+			this.setState({ allOrders, isLoading: false })
+		})
+	}
 
   _renderOrderHeader = (param) => {
 		return (
@@ -43,6 +56,7 @@ class Order extends Component {
   }
   
   _renderOrderContent = (item) => {
+		console.log('item', item)
 		return (
 			<TouchableWithoutFeedback onPress={() => this._orderDetail(item)}>
 					<View style={[styles.item, { 	flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center' }]}>
@@ -102,11 +116,10 @@ class Order extends Component {
   }
 
   _renderOrder = () => {
-		const { allOrders } = this.props
-		if(allOrders && allOrders.length > 0){
+		if(this.state.allOrders && this.state.allOrders.length > 0){
 			return (
 				<SectionList
-					sections={allOrders}
+					sections={this.state.allOrders}
           renderSectionHeader={ ({section}) =>  this._renderOrderHeader(section) }
           renderItem={ ({item, index}) => this._renderOrderContent(item, index, 'size') }
           keyExtractor={ (item, index) => index }
@@ -123,7 +136,7 @@ class Order extends Component {
     return (
      <Container>
          <Content>
-             {this._renderOrder()}
+             {this.state.isLoading ? (<Spinner />) : this._renderOrder()}
          </Content>
      </Container>
     );
@@ -131,7 +144,8 @@ class Order extends Component {
 }
 
 const mapStateToProps = state => ({
-  allOrders: state.order.allOrders
+	allOrders: state.order.allOrders,
+	userId: state.authReducer.currentUser.userId
 });
 
 export default connect(

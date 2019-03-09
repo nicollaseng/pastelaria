@@ -29,6 +29,7 @@ import { tabNavigator } from "../actions/Navigation"
 import { submitOrder, setOrder } from "../actions/OrderAction"
 import uuid from 'uuid'
 import moment from 'moment'
+import * as firebase from 'firebase'
 
 class Chart extends Component {
 
@@ -39,7 +40,17 @@ class Chart extends Component {
       totalPriceWithDelivery: 0,
       couponCode: '',
       payment: false,
+      allOrders: []
     }
+  }
+
+  componentWillMount(){
+    const userId = this.props.customer.userId
+    firebase.database().ref(`users/${userId}`).once('value', (snapshot) => {
+      let allOrders = snapshot.val().orders
+      console.log('willl mount', allOrders)
+      this.setState({ allOrders })
+    })  
   }
 
   componentWillReceiveProps(nextProps){
@@ -130,9 +141,9 @@ class Chart extends Component {
               <Text style={styles.leftOrderTotalText}>Total</Text>
             </View>
             <View style={styles.leftOrder}>
-              <Text style={[styles.leftOrderTextSubItemDescription, { textAlign: 'right'}]}>R$ {fullPrice}</Text>
+              <Text style={[styles.leftOrderTextSubItemDescription, { textAlign: 'right'}]}>R$ {fullPrice.toFixed(2)}</Text>
               <Text style={[styles.leftOrderTextSubItemDescription, { color: colors.text.free, textAlign:'right' }]}>Grátis</Text>
-              <Text style={[styles.leftOrderTotalText, { textAlign: 'right' }]}>R$ {fullPrice}</Text>
+              <Text style={[styles.leftOrderTotalText, { textAlign: 'right' }]}>R$ {fullPrice.toFixed(2)}</Text>
             </View>
           </View>
           <View style={styles.couponContainer}>
@@ -182,15 +193,17 @@ class Chart extends Component {
     return this.props.tabNavigator('payment')
   }
 
-  submitOrder = (price) => {
+  submitOrder = async (price) => {
     Alert.alert('Hmmmmm', 'Seu pedido foi realizado com sucesso! Acompanhe o status de seu pedido na aba Pedidos')
     const { chart, customer } = this.props
     const { totalPrice, totalPriceWithDelivery, couponCode } = this.state
     const orderNumber = Math.floor(Math.random() * 10001)
-    const orderID = uuid()
+    const orderId= uuid()
+    const userId = this.props.customer.userId
     const order = {
       orderNumber,
-      orderID,
+      orderId,
+      userId,
       chart,
       totalPrice: price,
       totalPriceWithDelivery: price,
@@ -198,19 +211,30 @@ class Chart extends Component {
       customer,
       dateDay: moment().date(),
       dateMonth: moment().month().length === 1 ? `0${moment().month() + 1}` :moment().month()+1 ,
-      date: moment().format('DD/MM/YYYY HH:mm:ss'),
+      createdAt: moment().format('DD/MM/YYYY HH:mm:ss'),
+      updatedAt: moment().format('DD/MM/YYYY HH:mm:ss'),
       paymentMethod: this.props.payment,
-      paymentChange: this.props.paymentChange
+      paymentChange: this.props.paymentChange === undefined ? '' : this.props.paymentChange
     }
-    const orderForDetails = {
-      title: orderNumber, data: [order]
-    }
+
+    // order for details is only for order list at order's screen - sectionlist
+    const orderForDetails = [
+      {title: orderNumber, data: [order]}
+    ]
     console.log('order to send', order)
-    this.props.submitOrder(order) // current order only
-    this.props.setOrder([...this.props.allOrders, orderForDetails]) // set all orders for order view section list
-    this.props.setChart([]) // make empty chart again
-    this.props.tabNavigator('order') //navigate to orders
-  }
+    firebase.database().ref(`orders/${userId}/${orderId}`).set(order)
+      .then(() => {
+          console.log('Created Order with Sucess')
+          this.props.submitOrder(order) // current order only
+          this.props.setOrder(orderForDetails) // set all orders for order view section list
+          this.props.setChart([]) // make empty chart again
+          this.props.tabNavigator('order') //navigate to orders
+        })
+      .catch(error => {
+        Alert.alert('Ops :(', 'Algo de errado aconteceu. Tenta novamente!')
+        console.log('Error creating order at database: ', error)
+      })
+    }
 
   render() {
     console.log("props do chart", this.props);
@@ -237,7 +261,7 @@ const mapStateToProps = state => ({
   chart: state.chart.chart,
   address: state.authReducer.currentUser,
   customer: state.authReducer.currentUser,
-  allOrders: state.order.allOrders,
+  allOrders: state.authReducer.currentUser.orders,
   payment: state.chart.payment,
   paymentChange: state.chart.paymentChange
 });
