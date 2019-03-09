@@ -109,9 +109,9 @@ class Chart extends Component {
               <Text style={styles.leftOrderTotalText}>Total</Text>
             </View>
             <View style={styles.leftOrder}>
-              <Text style={[styles.leftOrderTextSubItemDescription, { textAlign: 'right'}]}>R$ {order.totalPrice}</Text>
+              <Text style={[styles.leftOrderTextSubItemDescription, { textAlign: 'right'}]}>R$ {order.totalPrice.toFixed(2)}</Text>
               <Text style={[styles.leftOrderTextSubItemDescription, { color: colors.text.free, textAlign:'right' }]}>Grátis</Text>
-              <Text style={[styles.leftOrderTotalText, { textAlign: 'right' }]}>R$ {order.totalPriceWithDelivery}</Text>
+              <Text style={[styles.leftOrderTotalText, { textAlign: 'right' }]}>R$ {order.totalPriceWithDelivery.toFixed(2)}</Text>
             </View>
           </View>
           <View style={styles.couponContainer}>
@@ -136,7 +136,7 @@ class Chart extends Component {
 							<View>
 								<Text style={[styles.leftOrderTextSubItemDescription, { textAlign: 'right'}]}>#{order.orderNumber}</Text>
 								<Text style={[styles.leftOrderTextSubItemDescription, { textAlign: 'right'}]}>{order.date}</Text>
-								<Text style={[styles.leftOrderTextSubItemDescription, { textAlign: 'right'}]}>Troco para R$ {order.totalPriceWithDelivery}</Text>
+								<Text style={[styles.leftOrderTextSubItemDescription, { textAlign: 'right'}]}>Troco para R$ {order.totalPriceWithDelivery.toFixed(2)}</Text>
 							</View>
 						</View>
         </View>

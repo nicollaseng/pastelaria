@@ -9,7 +9,7 @@ import { firebaseConfig } from './src/service/firebase'
 export default class App extends Component{
 
   componentWillMount(){
-    console.log('firebase config', firebaseConfig())
+    // avoid multiples firebase call
    !firebase.apps.length ? firebase.initializeApp(firebaseConfig()) : firebase.app();
   }
   render() {
