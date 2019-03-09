@@ -17,7 +17,7 @@ import axios from 'axios';
 import geolib from 'geolib'
 import { colors } from "../../theme/global"
 import { connect } from 'react-redux'
-import { signUp } from '../../actions/AuthAction'
+import { signUp, setAddress } from '../../actions/AuthAction'
 
 
 class CEPScreen extends Component {
@@ -107,6 +107,7 @@ class CEPScreen extends Component {
 		axios.get(`http://www.mapquestapi.com/geocoding/v1/address?key=${MAPS_KEY}&location=${addressNumber}+${address}+${city},${this.unMask(cep)}`)
 			.then(response => {
 				let locationLength = response.data.results[0].locations.length
+				console.log('LATITUDEEEE', locationLength)
 				let addressLatitude = response.data.results[0].locations[locationLength-1].latLng.lat
 				let addressLongitude = response.data.results[0].locations[locationLength-1].latLng.lng
 				let distance = geolib.getDistance(
@@ -130,7 +131,7 @@ class CEPScreen extends Component {
 				neighborhood,
 			}
 			console.log('current user address', currentUserAddress)
-			this.props.signUp(currentUserAddress)
+			this.props.setAddress(currentUserAddress)
 			this.props.navigation.navigate(currentUser && Object.keys(currentUser).length > 0 ? 'DashBoard' : 'Signup')
 			})
 			.catch(err => {
@@ -143,6 +144,7 @@ class CEPScreen extends Component {
 	render(){
 		const { currentUser } = this.props
 		const oldUser = currentUser && Object.keys(currentUser).length > 0
+		console.log('possivel erro aqui', Object.keys(currentUser).length, currentUser)
 		return (
 			<View style={styles.container}>
 				<HeaderView title={oldUser ? 'Meu endereço' : 'Consultar CEP'} onBack={this.onBack} />
@@ -298,7 +300,8 @@ const styles = {
 }
 
 const mapStateToProps = state => ({
-	currentUser: state.authReducer.currentUser
+	currentUser: state.authReducer.currentUser,
+	address: state.authReducer.address
 })
 
-export default connect(mapStateToProps, { signUp })(withNavigation(CEPScreen))
+export default connect(mapStateToProps, { signUp, setAddress })(withNavigation(CEPScreen))

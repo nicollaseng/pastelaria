@@ -1,7 +1,8 @@
 import { 
 	SIGN_UP,
 	LOGOUT,
-	UPDATE_DISTANCE
+	UPDATE_DISTANCE,
+	SET_ADDRESS
 } from './actionTypes'
 
 const signUp = param => {
@@ -25,8 +26,16 @@ const updateDistance = param => {
 	})
 }
 
+const setAddress = param => {
+	return ({
+		type: SET_ADDRESS,
+		payload: param
+	})
+}
+
 export {
 	signUp,
 	logOut,
-	updateDistance
+	updateDistance,
+	setAddress,
 }

@@ -9,6 +9,7 @@ const ORDER = 'ORDER';
 const CHART = 'CHART';
 const ALL_ORDER = 'ALL_ORDER';
 const RATING = 'RATING';
+const SET_ADDRESS = 'SET_ADDRESS';
 
 
 export { 
@@ -23,4 +24,5 @@ export {
 	CHART,
 	ALL_ORDER,
 	RATING,
+	SET_ADDRESS
 }

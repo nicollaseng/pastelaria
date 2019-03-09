@@ -177,7 +177,7 @@ class RegisterScreen extends Component {
 				enderecoLogradouro: currentUser.address,
 				enderecoLocalidade: currentUser.city,
         enderecoBairro: currentUser.neighborhood,
-        profilePhoto: currentUser.photo64.length > 0 ? `data:image/png;base64,${currentUser.photo64}` : ''
+        profilePhoto: currentUser.photo64 && currentUser.photo64.length > 0 ? `data:image/png;base64,${currentUser.photo64}` : ''
       })
     }
   }
@@ -311,7 +311,7 @@ class RegisterScreen extends Component {
        } = this.state
 
 		let currentUser = {
-      ...this.props.currentUser,
+      ...this.props.address,
 			photo64,
 			location,
 			name,
@@ -323,6 +323,7 @@ class RegisterScreen extends Component {
       updatedAt: moment().format('DD/MM/YYYY HH:mm:ss'),
     }
     this.setState({ isLoading: true })
+    console.log('current user props', this.props.currentUser)
     if(this.props.currentUser && Object.keys(this.props.currentUser).length > 0){
       firebase.database().ref(`users/${this.props.currentUser.userId}`)
         .update({name, email, cpf, phone, photo64 })
@@ -342,24 +343,26 @@ class RegisterScreen extends Component {
         await firebase.auth().createUserWithEmailAndPassword(email,password) //creating auth user on firebase auth
           .then(response => {
             console.log('response', response)
-            try {
-              firebase.database().ref(`users/${response.user.uid}`).set({
-                ...currentUser,
-                userId: response.user.uid
-              }) //creating user on firebase database
-              .then(() => {
-                console.log('response creating user database')
-                this.setState({ isLoading: false })
-                  this.props.signUp({ ...currentUser,userId: response.user.uid})
-                  this.props.navigation.navigate('DashBoard')
-              })
-              .catch(err => {
-                Alert.alert('Ops :(', 'Algo de errado aconteceu. Tente novamente')
-                this.setState({ isLoading: false })
-                console.log('Error during creation user database', err)
-              })
-            } catch (err) {
-              console.log('Error before creating user firebase databse', err)
+            if(response){
+              try {
+                firebase.database().ref(`users/${response.user.uid}`).set({
+                  ...currentUser,
+                  userId: response.user.uid
+                }) //creating user on firebase database
+                .then(() => {
+                  console.log('response creating user database')
+                  this.setState({ isLoading: false })
+                    this.props.signUp({ ...currentUser,userId: response.user.uid})
+                    this.props.navigation.navigate('DashBoard')
+                })
+                .catch(err => {
+                  Alert.alert('Ops :(', 'Algo de errado aconteceu. Tente novamente')
+                  this.setState({ isLoading: false })
+                  console.log('Error during creation user database', err)
+                })
+              } catch (err) {
+                console.log('Error before creating user firebase databse', err)
+              }
             }
           })
           .catch(err => {
@@ -697,7 +700,8 @@ class RegisterScreen extends Component {
 }
 
 const mapStateToProps = state => ({
-	currentUser: state.authReducer.currentUser
+  currentUser: state.authReducer.currentUser,
+  address: state.authReducer.address
 })
 
 export default connect(mapStateToProps, { signUp })(withNavigation(RegisterScreen))

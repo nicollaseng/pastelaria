@@ -104,7 +104,6 @@ class LoginForm extends Component {
 		await firebase.database().ref('users').once('value', data => {
 			if(data){
 				let dataJson = data.toJSON()
-				console.log('DATA JSON', dataJson)
 				let currentUser = dataJson[key]
 				console.log('data', data.toJSON(), currentUser)
 				this.setState({ loading: false })
