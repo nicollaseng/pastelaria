@@ -10,7 +10,7 @@ export default class App extends Component{
 
   componentWillMount(){
     console.log('firebase config', firebaseConfig())
-    firebase.initializeApp(firebaseConfig());
+   !firebase.apps.length ? firebase.initializeApp(firebaseConfig()) : firebase.app();
   }
   render() {
     return (

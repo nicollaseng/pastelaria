@@ -18,6 +18,7 @@ import geolib from 'geolib'
 import { colors } from "../../theme/global"
 import { connect } from 'react-redux'
 import { signUp, setAddress } from '../../actions/AuthAction'
+import * as firebase from 'firebase'
 
 
 class CEPScreen extends Component {
@@ -99,7 +100,7 @@ class CEPScreen extends Component {
 		})
 	}
 
-	checkAddress = () => {
+	checkAddress = async () => {
 		const { currentUser} = this.props
 		const { addressNumber, city, address, userLatitude, userLongitude, cep, neighborhood} = this.state
 		this.setState({ loading: true })
@@ -113,26 +114,54 @@ class CEPScreen extends Component {
 				let distance = geolib.getDistance(
 					{latitude: userLatitude, longitude: userLongitude},
 					{latitude: addressLatitude, longitude: addressLongitude}
-			);
-			if(distance > 10000){
-				Alert.alert('Atenção', 'Infelizmente ainda não cobrimos o endereço informado :(')
-				return;
-			}
+				);
+				if(distance > 10000){
+					Alert.alert('Atenção', 'Infelizmente ainda não cobrimos o endereço informado :(')
+					return;
+				}
 
-			let currentUserAddress = {
-				...this.props.currentUser,
-				addressLatitude,
-				addressLongitude,
-				userLatitude,
-				userLongitude,
-				addressNumber,
-				address,
-				city,
-				neighborhood,
-			}
-			console.log('current user address', currentUserAddress)
-			this.props.setAddress(currentUserAddress)
-			this.props.navigation.navigate(currentUser && Object.keys(currentUser).length > 0 ? 'DashBoard' : 'Signup')
+				let currentUserAddress = {
+					...this.props.currentUser,
+					addressLatitude,
+					addressLongitude,
+					userLatitude,
+					userLongitude,
+					addressNumber,
+					address,
+					city,
+					neighborhood,
+				}
+				console.log('current user address', currentUserAddress)
+
+				//update only if current user exists otherwise proceed normally
+				if(this.props.currentUser && Object.keys(this.props.currentUser).length > 0){
+					firebase.database().ref(`users/${this.props.currentUser.userId}`)
+						.update({
+							addressLatitude,
+							addressLongitude,
+							userLatitude,
+							userLongitude,
+							addressNumber,
+							address,
+							city,
+							neighborhood,
+						})
+						.then(() => {
+							console.log('User info updated successfully')
+							this.setState({ isLoading: false })
+							Alert.alert('Atenção', 'Seus dados pessoais foram atualizados com sucesso')
+							this.props.signUp(currentUserAddress) // update redux current user with new address
+							this.props.navigation.navigate('DashBoard')
+						})
+						.catch(err => {
+							console.log('Error uptading user info', err)
+							this.setState({ isLoading: false })
+							Alert.alert('Ops :(', 'Algo deu errado. Tenta novamente mais tarde.')
+						})
+				} else {
+					this.props.setAddress(currentUserAddress) // set global address for user at redux
+					this.props.navigation.navigate(currentUser && Object.keys(currentUser).length > 0 ? 'DashBoard' : 'Signup')
+				}
 			})
 			.catch(err => {
 				console.log('error', err)
