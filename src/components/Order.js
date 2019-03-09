@@ -26,6 +26,7 @@ import { logOut } from "../actions/AuthAction.js";
 import { withNavigation } from "react-navigation";
 import { tabNavigator } from "../actions/Navigation"
 import * as firebase from 'firebase'
+import _ from 'lodash'
 
 class Order extends Component {
 	constructor(props){
@@ -39,16 +40,31 @@ class Order extends Component {
 	componentWillMount(){
 		const { userId } = this.props
 		this.setState({ isLoading: true })
-		firebase.database().ref(`orders/${userId}`).once('value', (snapshot) => {
-			let orders = Object.values(snapshot.val())
-			let allOrders = []
-			orders.map(order => {
-				allOrders = [...allOrders, {title: '', data: [order]}]
+		const getOrder = async () => {
+			await firebase.database().ref(`orders/${userId}`).on('value', (snapshot) => {
+				console.log('snapshot', snapshot.val())
+				if(snapshot.val()){
+					let orders = Object.values(snapshot.val())
+					let allOrders = []
+					if(orders && orders.length > 0){
+						orders.map(order => {
+							allOrders = [...allOrders, {title: '', data: [order]}]
+						})
+						let allOrdersOrdered = _.orderBy(allOrders, ['updatedAt'], ['asc'] )
+						this.setState({ allOrders: allOrdersOrdered, isLoading: false })
+						console.log('aquiii',allOrdersOrdered)
+					} else {
+						this.setState({ allOrders: [] })
+					}
+				} else {
+					this.setState({ isLoading: false})
+				}
+				// this.setState({ allOrders, isLoading: false })
 			})
-			this.setState({ allOrders, isLoading: false })
-		})
+		}
+		return getOrder()
 	}
-
+	
   _renderOrderHeader = (param) => {
 		return (
 			<View style={styles.modalItemSize} />

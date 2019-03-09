@@ -149,7 +149,7 @@ class Chart extends Component {
 							<Text style={styles.leftOrderTextSubItemDescription}>Status</Text>
 						</View>
 						<View>
-							<Text style={[styles.leftOrderTextSubItemDescription, { textAlign: 'right'}]}>Em andamento</Text>
+							<Text style={[styles.leftOrderTextSubItemDescription, { textAlign: 'right'}]}>{order.status}</Text>
 						</View>
 					</View>
         </View>

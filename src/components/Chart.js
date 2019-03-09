@@ -214,12 +214,13 @@ class Chart extends Component {
       createdAt: moment().format('DD/MM/YYYY HH:mm:ss'),
       updatedAt: moment().format('DD/MM/YYYY HH:mm:ss'),
       paymentMethod: this.props.payment,
-      paymentChange: this.props.paymentChange === undefined ? '' : this.props.paymentChange
+      paymentChange: this.props.paymentChange === undefined ? '' : this.props.paymentChange,
+      status: 'Realizado'
     }
 
     // order for details is only for order list at order's screen - sectionlist
     const orderForDetails = [
-      {title: orderNumber, data: [order]}
+      {title: orderNumber, data: [order], updatedAt: moment().format('DD/MM/YYYY HH:mm:ss')}
     ]
     console.log('order to send', order)
     firebase.database().ref(`orders/${userId}/${orderId}`).set(order)
