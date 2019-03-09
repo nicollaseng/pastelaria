@@ -195,7 +195,8 @@ class RegisterScreen extends Component {
 	}
 
   onClickBackButton = () => {
-    return this.props.navigation.goBack()
+    const { currentUser } = this.props
+    return this.props.navigation.navigate(currentUser && Object.keys(currentUser).length > 0 ? 'DashBoard' : 'CEP')
   };
 
   onClickTermsButton = () => {
@@ -323,14 +324,15 @@ class RegisterScreen extends Component {
       updatedAt: moment().format('DD/MM/YYYY HH:mm:ss'),
     }
     this.setState({ isLoading: true })
-    console.log('current user props', this.props.currentUser)
+    console.log('current user props', currentUser)
     if(this.props.currentUser && Object.keys(this.props.currentUser).length > 0){
       firebase.database().ref(`users/${this.props.currentUser.userId}`)
         .update({name, email, cpf, phone, photo64 })
-        .then(response => {
-          console.log('User info updated successfully', response)
+        .then(() => {
+          console.log('User info updated successfully')
           this.setState({ isLoading: false })
           Alert.alert('Atenção', 'Seus dados pessoais foram atualizados com sucesso')
+          this.props.signUp(currentUser) // update redux curret user with new info
           this.props.navigation.navigate('DashBoard')
         })
         .catch(err => {
@@ -563,7 +565,7 @@ class RegisterScreen extends Component {
   // }
 
   render() {
-    console.log('photo', this.state.profilePhoto)
+    console.log('props', this.props)
     const { isLoading } = this.state;
     const { currentUser } = this.props
     return (
