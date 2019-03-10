@@ -19,6 +19,7 @@ import { colors } from "../../theme/global"
 import { connect } from 'react-redux'
 import { signUp, setAddress } from '../../actions/AuthAction'
 import * as firebase from 'firebase'
+import { RESTAURANT } from 'react-native-dotenv'
 
 
 class CEPScreen extends Component {
@@ -135,7 +136,7 @@ class CEPScreen extends Component {
 
 				//update only if current user exists otherwise proceed normally
 				if(this.props.currentUser && Object.keys(this.props.currentUser).length > 0){
-					firebase.database().ref(`users/${this.props.currentUser.userId}`)
+					firebase.database().ref(`${RESTAURANT}/users/${this.props.currentUser.userId}`)
 						.update({
 							addressLatitude,
 							addressLongitude,

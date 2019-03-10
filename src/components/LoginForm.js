@@ -25,6 +25,7 @@ import { logo, colors } from "../theme/global"
 import { connect } from 'react-redux'
 import * as firebase from 'firebase'
 import _ from "lodash"
+import { RESTAURANT } from 'react-native-dotenv'
 
 class LoginForm extends Component {
 
@@ -101,7 +102,7 @@ class LoginForm extends Component {
 	}
 
 	_setUserInfo = async key => {
-		await firebase.database().ref('users').once('value', data => {
+		await firebase.database().ref(`${RESTAURANT}/users`).once('value', data => {
 			if(data){
 				let dataJson = data.toJSON()
 				let currentUser = dataJson[key]
@@ -115,7 +116,7 @@ class LoginForm extends Component {
 	
 	render(){
 		return (
-			<View style={{ flex: 1 }}>
+		<View style={{ flex: 1 }}>
 			<View style={styles.logoContainer}>
 				<Image
 					source={logo}

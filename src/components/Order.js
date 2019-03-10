@@ -27,6 +27,7 @@ import { withNavigation } from "react-navigation";
 import { tabNavigator } from "../actions/Navigation"
 import * as firebase from 'firebase'
 import _ from 'lodash'
+import { RESTAURANT } from 'react-native-dotenv'
 
 class Order extends Component {
 	constructor(props){
@@ -41,7 +42,7 @@ class Order extends Component {
 		const { userId } = this.props
 		this.setState({ isLoading: true })
 		const getOrder = async () => {
-			await firebase.database().ref(`orders/${userId}`).on('value', (snapshot) => {
+			await firebase.database().ref(`${RESTAURANT}/orders/${userId}`).on('value', (snapshot) => {
 				console.log('snapshot', snapshot.val())
 				if(snapshot.val()){
 					let orders = Object.values(snapshot.val())

@@ -30,6 +30,7 @@ import { submitOrder, setOrder } from "../actions/OrderAction"
 import uuid from 'uuid'
 import moment from 'moment'
 import * as firebase from 'firebase'
+import { RESTAURANT } from 'react-native-dotenv'
 
 class Chart extends Component {
 
@@ -46,7 +47,7 @@ class Chart extends Component {
 
   componentWillMount(){
     const userId = this.props.customer.userId
-    firebase.database().ref(`users/${userId}`).once('value', (snapshot) => {
+    firebase.database().ref(`${RESTAURANT}/users/${userId}`).once('value', (snapshot) => {
       let allOrders = snapshot.val().orders
       console.log('willl mount', allOrders)
       this.setState({ allOrders })
@@ -223,7 +224,7 @@ class Chart extends Component {
       {title: orderNumber, data: [order]}
     ]
     console.log('order to send', order)
-    firebase.database().ref(`orders/${userId}/${orderId}`).set(order)
+    firebase.database().ref(`${RESTAURANT}/orders/${userId}/${orderId}`).set(order)
       .then(() => {
           console.log('Created Order with Sucess')
           this.props.submitOrder(order) // current order only

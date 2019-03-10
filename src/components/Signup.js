@@ -34,6 +34,7 @@ import { withNavigation } from 'react-navigation'
 import * as firebase from 'firebase'
 import uuid from 'uuid/v1'
 import moment from 'moment'
+import { RESTAURANT } from 'react-native-dotenv'
 
 const options = {
   title: 'Selecione uma foto de perfil',
@@ -326,7 +327,7 @@ class RegisterScreen extends Component {
     this.setState({ isLoading: true })
     console.log('current user props', currentUser)
     if(this.props.currentUser && Object.keys(this.props.currentUser).length > 0){
-      firebase.database().ref(`users/${this.props.currentUser.userId}`)
+      firebase.database().ref(`${RESTAURANT}/users/${this.props.currentUser.userId}`)
         .update({name, email, cpf, phone, photo64 })
         .then(() => {
           console.log('User info updated successfully')
@@ -347,7 +348,7 @@ class RegisterScreen extends Component {
             console.log('response', response)
             if(response){
               try {
-                firebase.database().ref(`users/${response.user.uid}`).set({
+                firebase.database().ref(`${RESTAURANT}/users/${response.user.uid}`).set({
                   ...currentUser,
                   userId: response.user.uid
                 }) //creating user on firebase database
