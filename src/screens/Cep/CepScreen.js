@@ -18,6 +18,7 @@ import geolib from 'geolib'
 import { colors } from "../../theme/global"
 import { connect } from 'react-redux'
 import { signUp, setAddress } from '../../actions/AuthAction'
+import { setRestaurantInfo } from '../../actions/RestaurantAction'
 import * as firebase from 'firebase'
 import { RESTAURANT } from 'react-native-dotenv'
 
@@ -39,6 +40,7 @@ class CEPScreen extends Component {
 			addressLongitude: '',
 			userLatitude: '',
 			userLongitude: '',
+			restaurantRadius: '',
 
 			//address
 			addressNumber: '',
@@ -89,16 +91,33 @@ class CEPScreen extends Component {
 				fetch: true
 			})
 		})
-		// below we set restaurant addresse and get restaurante Lat and Long
-		axios.get(`http://www.mapquestapi.com/geocoding/v1/address?key=${MAPS_KEY}&location=3636+avenida francisco sa+fortaleza,60310001`)
-		.then(response => {
-			let userLatitude = response.data.results[0].locations[0].displayLatLng.lat
-			let userLongitude = response.data.results[0].locations[0].displayLatLng.lng
-			this.setState({ userLongitude, userLatitude })
+
+		// retrieve from server restaurant info as address to get after latitude and longitude
+		firebase.database().ref(`/foods/restaurantes/${RESTAURANT}`).once('value', (data) => {
+			
+			let dataObject = data.val()
+			let addressNumber = dataObject.enderecoNumero
+			let address = dataObject.endereco
+			let cep = dataObject.cep
+			let city = dataObject.cidade
+			let radius = dataObject.raioEntrega*1000 // meters not km
+
+			this.props.setRestaurantInfo(data.val()) // set all restaurant data into redux store
+
+			//get lat and long from restaurant
+			axios.get(`http://www.mapquestapi.com/geocoding/v1/address?key=${MAPS_KEY}&location=${addressNumber}+${address}+${city},${cep}`)
+				.then(response => {
+					let userLatitude = response.data.results[0].locations[0].displayLatLng.lat
+					let userLongitude = response.data.results[0].locations[0].displayLatLng.lng
+					this.setState({ userLongitude, userLatitude, restaurantRadius: radius })
+				})
+				.catch(err => {
+					console.log(err)
+				})
+			console.log('restaruant data', dataObject)
 		})
-		.catch(err => {
-			console.log(err)
-		})
+
+		// below we set restaurant address and get restaurante Lat and Long
 	}
 
 	checkAddress = async () => {
@@ -116,7 +135,7 @@ class CEPScreen extends Component {
 					{latitude: userLatitude, longitude: userLongitude},
 					{latitude: addressLatitude, longitude: addressLongitude}
 				);
-				if(distance > 10000){
+				if(distance > this.state.restaurantRadius){
 					Alert.alert('Atenção', 'Infelizmente ainda não cobrimos o endereço informado :(')
 					return;
 				}
@@ -331,7 +350,8 @@ const styles = {
 
 const mapStateToProps = state => ({
 	currentUser: state.authReducer.currentUser,
-	address: state.authReducer.address
+	address: state.authReducer.address,
+	restaurant: state.restaurant.restaurantInfo
 })
 
-export default connect(mapStateToProps, { signUp, setAddress })(withNavigation(CEPScreen))
+export default connect(mapStateToProps, { signUp, setAddress, setRestaurantInfo })(withNavigation(CEPScreen))

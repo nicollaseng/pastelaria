@@ -6,6 +6,7 @@ import { navigation } from './NavigationReducer'
 import { selectCategory } from './ProfessionalReducer'
 import { chart } from './ChartReducer'
 import { order } from './OrderReducer'
+import { restaurant } from './RestaurantReducer'
 
 export const Reducers = combineReducers({
     token,
@@ -13,5 +14,6 @@ export const Reducers = combineReducers({
     navigation,
     selectCategory,
     chart,
-    order
+    order,
+    restaurant
 })
