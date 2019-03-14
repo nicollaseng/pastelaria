@@ -31,6 +31,7 @@ import uuid from 'uuid'
 import moment from 'moment'
 import * as firebase from 'firebase'
 import { RESTAURANT } from 'react-native-dotenv'
+import VMasker from 'vanilla-masker'
 
 class Chart extends Component {
 
@@ -127,6 +128,10 @@ class Chart extends Component {
 
   _renderSubChart = (fullPrice) => {
     const { chart } = this.props
+    let price = VMasker.toMoney(fullPrice.toFixed(2))
+    let taxaEntrega = VMasker.toMoney(parseFloat(this.props.address.deliveryTax)*100)
+    let finalPrice = VMasker.toMoney((parseFloat(fullPrice.toFixed(2)) + parseFloat(this.props.address.deliveryTax))*100)
+    console.log(price, taxaEntrega, finalPrice)
     if(chart && chart.length > 0){
       return (
         <View>
@@ -142,9 +147,11 @@ class Chart extends Component {
               <Text style={styles.leftOrderTotalText}>Total</Text>
             </View>
             <View style={styles.leftOrder}>
-              <Text style={[styles.leftOrderTextSubItemDescription, { textAlign: 'right'}]}>R$ {fullPrice.toFixed(2)}</Text>
-              <Text style={[styles.leftOrderTextSubItemDescription, { color: colors.text.free, textAlign:'right' }]}>Grátis</Text>
-              <Text style={[styles.leftOrderTotalText, { textAlign: 'right' }]}>R$ {fullPrice.toFixed(2)}</Text>
+              <Text style={[styles.leftOrderTextSubItemDescription, { textAlign: 'right'}]}>R$ {price}</Text>
+              <Text style={[styles.leftOrderTextSubItemDescription, { color: colors.text.free, textAlign:'right' }]}>
+               R$ {taxaEntrega}
+              </Text>
+              <Text style={[styles.leftOrderTotalText, { textAlign: 'right' }]}>R$ {finalPrice}</Text>
             </View>
           </View>
           <View style={styles.couponContainer}>
@@ -265,7 +272,8 @@ const mapStateToProps = state => ({
   customer: state.authReducer.currentUser,
   allOrders: state.authReducer.currentUser.orders,
   payment: state.chart.payment,
-  paymentChange: state.chart.paymentChange
+  paymentChange: state.chart.paymentChange,
+  restaurant: state.restaurant.restaurantInfo
 });
 
 export default connect(

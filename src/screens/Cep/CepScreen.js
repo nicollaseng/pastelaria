@@ -100,7 +100,8 @@ class CEPScreen extends Component {
 			let address = dataObject.endereco
 			let cep = dataObject.cep
 			let city = dataObject.cidade
-			let radius = dataObject.raioEntrega*1000 // meters not km
+			let radius = parseInt(dataObject.raioEntrega)*1000 // meters not km
+			let tax = parseFloat(dataObject.taxaEntregaKm.replace(',','.')).toFixed(2)*10
 
 			this.props.setRestaurantInfo(data.val()) // set all restaurant data into redux store
 
@@ -109,7 +110,7 @@ class CEPScreen extends Component {
 				.then(response => {
 					let userLatitude = response.data.results[0].locations[0].displayLatLng.lat
 					let userLongitude = response.data.results[0].locations[0].displayLatLng.lng
-					this.setState({ userLongitude, userLatitude, restaurantRadius: radius })
+					this.setState({ userLongitude, userLatitude, restaurantRadius: radius, tax  })
 				})
 				.catch(err => {
 					console.log(err)
@@ -122,7 +123,8 @@ class CEPScreen extends Component {
 
 	checkAddress = async () => {
 		const { currentUser} = this.props
-		const { addressNumber, city, address, userLatitude, userLongitude, cep, neighborhood} = this.state
+		const { addressNumber, city, address, userLatitude, userLongitude, cep, neighborhood, tax, restaurantRadius} = this.state
+		let distance;
 		this.setState({ loading: true })
 		// bellow we check distance between restaurant and user 
 		axios.get(`http://www.mapquestapi.com/geocoding/v1/address?key=${MAPS_KEY}&location=${addressNumber}+${address}+${city},${this.unMask(cep)}`)
@@ -131,7 +133,7 @@ class CEPScreen extends Component {
 				console.log('LATITUDEEEE', locationLength)
 				let addressLatitude = response.data.results[0].locations[locationLength-1].latLng.lat
 				let addressLongitude = response.data.results[0].locations[locationLength-1].latLng.lng
-				let distance = geolib.getDistance(
+				distance = geolib.getDistance(
 					{latitude: userLatitude, longitude: userLongitude},
 					{latitude: addressLatitude, longitude: addressLongitude}
 				);
@@ -139,6 +141,7 @@ class CEPScreen extends Component {
 					Alert.alert('Atenção', 'Infelizmente ainda não cobrimos o endereço informado :(')
 					return;
 				}
+				let deliveryTax = distance < 1000 ? parseFloat(tax) : ((distance/1000)*parseFloat(tax)).toFixed(2)
 
 				let currentUserAddress = {
 					...this.props.currentUser,
@@ -150,6 +153,7 @@ class CEPScreen extends Component {
 					address,
 					city,
 					neighborhood,
+					deliveryTax
 				}
 				console.log('current user address', currentUserAddress)
 
@@ -165,6 +169,7 @@ class CEPScreen extends Component {
 							address,
 							city,
 							neighborhood,
+							deliveryTax
 						})
 						.then(() => {
 							console.log('User info updated successfully')
@@ -193,7 +198,6 @@ class CEPScreen extends Component {
 	render(){
 		const { currentUser } = this.props
 		const oldUser = currentUser && Object.keys(currentUser).length > 0
-		console.log('possivel erro aqui', Object.keys(currentUser).length, currentUser)
 		return (
 			<View style={styles.container}>
 				<HeaderView title={oldUser ? 'Meu endereço' : 'Consultar CEP'} onBack={this.onBack} />

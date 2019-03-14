@@ -231,7 +231,7 @@ class RegisterScreen extends Component {
       enderecoLocalidade,
     } = this.state;
 
-    if (name.length < 3) {
+    if (name.length < 7) {
       this.showWarningAlert('Nome inválido');
       return;
     }
@@ -692,7 +692,7 @@ class RegisterScreen extends Component {
               style={styles.signUpButton}
               onPress={this.validateFieldsAndRegister}
             >
-              <Text style={styles.signUpButtonText}>Próximo</Text>
+              <Text style={styles.signUpButtonText}>Finalizar</Text>
             </Button>
           </View>
         </Content>
