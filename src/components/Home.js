@@ -24,6 +24,8 @@ import { setChart } from "../actions/ChartAction.js";
 import { tabNavigator } from "../actions/Navigation";
 import { withNavigation } from "react-navigation";
 import Modal from "react-native-modal";
+import { RESTAURANT } from 'react-native-dotenv'
+import * as firebase from 'firebase';
 
 class Home extends Component {
 	constructor(props){
@@ -42,8 +44,34 @@ class Home extends Component {
 
 			itemSize: [],
 			itemIngredient: [],
-			itemBag: []
+			itemBag: [],
+
+			//store
+			storeWeb: [],
+			storeApp: [],
+			option: []
 		}
+	}
+	
+	componentWillMount(){
+		this.setState({ restaurantName: RESTAURANT })
+    firebase.database().ref(`/${RESTAURANT}/store/storeWeb`).on('value', (data) => {
+			console.log('dataWeb', data.val())
+		 if(data.val() !== null){
+				let option = []
+				data.val().map(data => {
+					option = [...option, data.title.title]
+				})
+				let optionUniq = _.uniq(option)
+				this.setState({ store: true, storeWeb: data.val(), option: optionUniq})
+			}
+		})
+		firebase.database().ref(`/${RESTAURANT}/store/storeApp`).on('value', (data) => {
+			console.log('data', data.val())
+			if(data.val() !== null){
+				this.setState({ storeApp: data.val(), store: true})
+			}
+		})
 	}
 
 	GetSectionListItem=(item)=>{
@@ -336,34 +364,24 @@ class Home extends Component {
 		this.props.tabNavigator('chart')
 	}
   render() {
-		console.log("state", this.state.itemQuantity, 'props', this.props);
+		console.log("state", this.state, 'props', this.props, 'storeapp', this.state.storeApp);
     return (
 				<View style={styles.container}>
 					<Modal isVisible={this.state.visibleModal}>
 						{this._renderModal()}
 					</Modal>
-					<SectionList
-					sections={[
-						{title: 'Pizzas', data: [
-							{title: 'Mista', description: 'O melhor pizza de mista', price: `a partir de R$ 14,90 `},
-							{title: 'Queijo', description: 'O melhor pizza de queijo', price: `a partir de R$ 12,20 `},
-						]},
-						{title: 'Pasteis', data: [
-							{title: 'Carne', description: 'O melhor pastel de carne', price: `a partir de R$ 7,90 `},
-							{title: 'Frango', description: 'O melhor pastel de frango', price: `a partir de R$ 7,20 `},
-						]},
-						{title: 'Bebidas', data: [
-							{title: 'Coca-cola lata 350ml', description: 'Mate sua sede', price: `R$ 5,90 `},
-							{title: 'Coca-cola lata 2L', description: 'Mate sua sede', price: `R$ 11,90 `},
-							{title: 'Fanta laranja lata 350ml', description: 'Mate sua sede', price: `R$ 4,90 `},
-							{title: 'Fanta uva lata 350ml', description: 'Mate sua sede', price: `R$ 4,90 `},
-							{title: 'Guaraná lata 350ml', description: 'Mate sua sede', price: `R$ 4,90 `},
-						]},
-					]}
-					renderSectionHeader={ ({section}) => <Text style={styles.sectionHeaderTitle}> { section.title } </Text> }
-					renderItem={ ({item}) => this._renderItem(item) }
-					keyExtractor={ (item, index) => index }
-				/>
+					{this.state.storeApp ? (
+						<SectionList
+							sections={this.state.storeApp.length > 0 ? this.state.storeApp : []}
+							renderSectionHeader={ ({section}) => <Text style={styles.sectionHeaderTitle}> { section.title } </Text> }
+							renderItem={ ({item}) => this._renderItem(item) }
+							keyExtractor={ (item, index) => index }
+						/>
+					) : (
+						<View>
+							<Text>Nenhum cardápio cadastrado até o momento</Text>
+						</View>
+					)}
 			</View>
     );
   }
