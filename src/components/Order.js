@@ -7,7 +7,7 @@ import {
   AsyncStorage,
   SectionList,
   View,
-  TouchableWithoutFeedback
+	TouchableWithoutFeedback,
 } from "react-native";
 
 import {

@@ -19,6 +19,7 @@ import FooterView from "./FooterView.js";
 // import { onSignOut, isSignedIn } from "../services/auth.js";
 import { connect } from "react-redux";
 import { setChart } from "../actions/ChartAction.js";
+import { setRestaurantInfo } from "../actions/RestaurantAction";
 import { tabNavigator } from "../actions/Navigation";
 import { withNavigation } from "react-navigation";
 import Modal from "react-native-modal";
@@ -70,6 +71,11 @@ class Home extends Component {
 			if(data.val() !== null){
 				this.setState({ storeApp: data.val(), store: true})
 			}
+		})
+		// retrieve from server restaurant info 
+		firebase.database().ref(`/foods/restaurantes/${RESTAURANT}`).once('value', (data) => {
+			console.log('restaurant info', data.val())
+			this.props.setRestaurantInfo(data.val()) // set all restaurant data into redux store
 		})
 	}
 
@@ -393,7 +399,7 @@ const mapStateToProps = state => ({
 
 export default connect(
   mapStateToProps,
-  { setChart, tabNavigator }
+  { setChart, tabNavigator, setRestaurantInfo }
 )(withNavigation(Home));
 
 const styles = {

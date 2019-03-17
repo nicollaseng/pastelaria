@@ -4894,6 +4894,10 @@ react-native-modal@^9.0.0:
     prop-types "^15.6.2"
     react-native-animatable "^1.2.4"
 
+react-native-phone-call@^1.0.9:
+  version "1.0.9"
+  resolved "https://registry.yarnpkg.com/react-native-phone-call/-/react-native-phone-call-1.0.9.tgz#4468ec6f95856557fbff9bd69a0db04b54c35e1d"
+
 react-native-rating-star@^0.2.1:
   version "0.2.1"
   resolved "https://registry.yarnpkg.com/react-native-rating-star/-/react-native-rating-star-0.2.1.tgz#2f44f19c0f4ebabc55f8ae0a508512f3d3890351"

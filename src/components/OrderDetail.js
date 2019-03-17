@@ -6,7 +6,9 @@ import {
   TouchableOpacity,
   AsyncStorage,
   View,
-  Image
+  Image,
+  Linking,
+  Platform
 } from "react-native";
 
 import {
@@ -28,6 +30,7 @@ import Modal from 'react-native-modal';
 import { unMask, toMoney } from '../utils/mask'
 import * as firebase from 'firebase'
 import { RESTAURANT } from 'react-native-dotenv'
+import call from 'react-native-phone-call'
 
 
 class Chart extends Component {
@@ -169,15 +172,41 @@ class Chart extends Component {
 						</View>
 					</View>
         </View>
-				{this.state.deliverStatus && (
-					<TouchableOpacity onPress={() => this.setState({ visibleModal: true })}>
-						<Text style={styles.evaluate}> Avaliar </Text>
-					</TouchableOpacity>
-				)}
+        {this.state.orderStatus === 'Concluído' ? (
+          <TouchableOpacity onPress={() => this.setState({ visibleModal: true })}>
+            <Text style={styles.evaluate}> Avaliar </Text>
+          </TouchableOpacity>
+        ) : (
+          <TouchableOpacity
+            style={styles.finish}
+            onPress={this.contact}>
+            <Text style={styles.finishText}>
+              Entrar em contato
+            </Text>
+        </TouchableOpacity>
+        )}
 			</View>
       )
     }
-	}
+  }
+  
+  contact = () => {
+    const { restaurant } = this.props
+    // let phoneNumber;
+    // if (Platform.OS !== 'android') {
+    //   phoneNumber = `telprompt:${restaurant.telefone}`;
+    // } else  {
+    //   phoneNumber = `tel:${restaurant.telefone}`;
+    // }
+    // return Linking.openURL(`tel:${phoneNumber}`)
+
+
+    const args = {
+      number: restaurant.telefone, // String value with the number to call
+      prompt: false // Optional boolean property. Determines if the user should be prompt prior to the call 
+    }
+    return call(args).catch(console.error)
+  }
 	
 	_renderModal = () => {
 		const { rated } = this.state
@@ -246,7 +275,8 @@ const mapStateToProps = state => ({
   customer: state.authReducer.currentUser,
 	allOrders: state.order.allOrders,
 	order: state.navigation.data,
-	rating: state.order.rating,
+  rating: state.order.rating,
+  restaurant: state.restaurant.restaurantInfo
 });
 
 export default connect(
