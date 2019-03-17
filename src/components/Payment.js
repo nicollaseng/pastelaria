@@ -32,8 +32,8 @@ import { setChart, setPayment } from "../actions/ChartAction.js";
 import { tabNavigator } from "../actions/Navigation"
 import { submitOrder, setOrder } from "../actions/OrderAction"
 import { payments } from "../utils/paymentMethods"
-import { TextInputMask } from 'react-native-masked-text'
 import Modal from 'react-native-modal'
+import { toMoney, unMask } from '../utils/mask'
 
 class Payment extends Component {
 
@@ -88,10 +88,9 @@ class Payment extends Component {
 						</Text>
 					</View>
 					<View style={styles.moneyContainer}>
-						<Text style={styles.money}>R$</Text>
-						<TextInputMask
-							type={'money'}
-							value={this.state.paymentChange}
+						<Input
+              style={styles.input}
+							value={`R$ ${toMoney(unMask(this.state.paymentChange))}`}
 							onChangeText={paymentChange => {
 								this.setState({
 									paymentChange
@@ -305,8 +304,9 @@ const styles = {
     marginLeft: 6
 	},
 	modalContainer: {
+    marginHorizontal: 17,
 		borderRadius: 5,
-		flex: 0.6,
+		flex: 0.9,
 		backgroundColor: '#f2f2f2',
 		justifyContent: 'space-around',
 		alignItems: 'center'
@@ -354,5 +354,10 @@ const styles = {
 		fontSize: 14,
 		textAlign: 'center',
 		paddingVertical: 6.5
-	}
+  },
+  input: {
+    fontSize: 26,
+    fontWeight: '600',
+    textAlign: 'center'
+  }
 };
