@@ -11,9 +11,7 @@ import {
 } from "react-native";
 import Icon from 'react-native-vector-icons/FontAwesome5';
 import _ from "lodash";
-
 import { Container, Header, Content, List, ListItem, Radio } from 'native-base'
-
 import SideBar from "./Sidebar";
 import getSideBarItems from "./SidebarItems";
 import {colors} from "../theme/global";
@@ -26,6 +24,7 @@ import { withNavigation } from "react-navigation";
 import Modal from "react-native-modal";
 import { RESTAURANT } from 'react-native-dotenv'
 import * as firebase from 'firebase';
+import { unMask, toMoney } from '../utils/mask'
 
 class Home extends Component {
 	constructor(props){
@@ -88,7 +87,7 @@ class Home extends Component {
 					<View style={styles.item}>
 						<Text style={styles.title}>{item.title}</Text>
 						<Text>{item.description}</Text>
-						<Text style={styles.price}>{item.price}</Text>
+						<Text style={styles.price}>R$ {toMoney(unMask(item.price))}</Text>
 					</View>
 				</TouchableWithoutFeedback>
 			)
@@ -144,7 +143,7 @@ class Home extends Component {
 	}
 
 	_renderItemSizeModal = (item, index, category) => {
-		console.log(category)
+		console.log('render size', category)
 		return (
 			<TouchableWithoutFeedback onPress={() => this.setRadio(item, index, category)}>
 					<View style={[styles.item, { 	flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }]}>
@@ -211,7 +210,7 @@ class Home extends Component {
 	_renderModalListSize = (param) => {
 		return (
 			<View style={styles.modalItemSize}>
-				<Text style={styles.modalItemsOptions}>Escolha o tamanho</Text>
+				<Text style={styles.modalItemsOptions}>Escolha o item</Text>
 				<View style={styles.modalItemOptionsFooter}>
 					<Text>{`${this.state.itemSize.length} de 1`}</Text>
 					<Text style={styles.modalMandatory}>OBRIGATÓRIO</Text>
@@ -220,16 +219,16 @@ class Home extends Component {
 		)
 	}
 
-	_renderModalListExtra = (param) => {
-		return (
-			<View style={styles.modalItemSize}>
-				<Text style={styles.modalItemsOptions}>Adicione mais ingredientes</Text>
-				<View style={styles.modalItemOptionsFooter}>
-					<Text>{`${this.state.itemIngredient.length} de 3`}</Text>
-				</View>
-			</View>
-		)
-	}
+	// _renderModalListExtra = (param) => {
+	// 	return (
+	// 		<View style={styles.modalItemSize}>
+	// 			<Text style={styles.modalItemsOptions}>Adicione mais ingredientes</Text>
+	// 			<View style={styles.modalItemOptionsFooter}>
+	// 				<Text>{`${this.state.itemIngredient.length} de 3`}</Text>
+	// 			</View>
+	// 		</View>
+	// 	)
+	// }
 
 	_renderModalListBag = (param) => {
 		return (
@@ -245,6 +244,8 @@ class Home extends Component {
 
 	_renderModal = () => {
 		const { modalItem } = this.state
+		let item = [{title: '', data: [modalItem] }]
+		console.log('aquii', modalItem, item)
 		return (
 			<View style={styles.modal}>
 				<TouchableWithoutFeedback onPress={() => 
@@ -268,20 +269,14 @@ class Home extends Component {
 					<View style={styles.modalContainer}>
 						<Text style={[styles.title, { fontSize: 14.6, color: '#000'}]}>{modalItem.title}</Text>
 						<Text>{modalItem.description}</Text>
-						<Text style={[styles.price,{ marginVertical: 2 }]}>{modalItem.price}</Text>
+						{/* <Text style={[styles.price,{ marginVertical: 2 }]}>{modalItem.price}</Text> */}
 					</View>
 					<View style={{ flex: 0.4 }}>
 
 						{/* tamanho */}
 
 						<SectionList
-							sections={[
-								{title: '', data: [
-									{title: 'Pequeno', description: 'O melhor pizza de mista', price: 4.9},
-									{title: 'Médio', description: 'O melhor pizza de queijo', price: 8.2},
-									{title: 'Grande', description: 'O melhor pizza de queijo', price: 22.4},
-								]},
-							]}
+							sections={item}
 							renderSectionHeader={ ({section}) =>  this._renderModalListSize(section) }
 							renderItem={ ({item, index}) => this._renderItemSizeModal(item, index, 'size') }
 							keyExtractor={ (item, index) => index }
@@ -289,7 +284,7 @@ class Home extends Component {
 
 					{/* mais recheio */}
 
-					<SectionList
+					{/* <SectionList
 						sections={[
 							{title: '', data: [
 								{title: 'Queijo', price: 4.9},
@@ -301,7 +296,7 @@ class Home extends Component {
 						renderSectionHeader={ ({section}) =>  this._renderModalListExtra(section) }
 						renderItem={ ({item, index}) => this._renderItemIngredient(item, index, 'ingredient') }
 						keyExtractor={ (item, index) => index }
-					/>
+					/> */}
 
 					{/* embalagem */}
 
