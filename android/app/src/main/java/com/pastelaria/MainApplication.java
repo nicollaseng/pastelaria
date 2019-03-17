@@ -1,4 +1,5 @@
 package com.pastelaria;
+import com.geektime.rnonesignalandroid.ReactNativeOneSignalPackage;
 
 import android.app.Application;
 
@@ -27,6 +28,7 @@ public class MainApplication extends Application implements ReactApplication {
     protected List<ReactPackage> getPackages() {
       return Arrays.<ReactPackage>asList(
           new MainReactPackage(),
+            new ReactNativeOneSignalPackage(),
             new ImagePickerPackage(),
             new VectorIconsPackage(),
             new RNGestureHandlerPackage(),
