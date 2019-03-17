@@ -160,7 +160,7 @@ class Chart extends Component {
 								<Text style={[styles.leftOrderTextSubItemDescription, { textAlign: 'right'}]}>#{order.orderNumber}</Text>
 								<Text style={[styles.leftOrderTextSubItemDescription, { textAlign: 'right'}]}>{order.createdAt}</Text>
                 <Text style={[styles.leftOrderTextSubItemDescription, { textAlign: 'right'}]}>
-                  {order.paymentMethod === 'Dinheiro' ? 'Troco para' : ''} {order.paymentMethod === 'Dinheiro' ? order.paymentChange : order.paymentMethod}
+                  {order.paymentMethod === 'Dinheiro' ? 'Troco para' : ''} {order.paymentMethod === 'Dinheiro' ? `R$ ${toMoney(unMask(order.paymentChange))}` : order.paymentMethod}
                 </Text>
 							</View>
 						</View>
