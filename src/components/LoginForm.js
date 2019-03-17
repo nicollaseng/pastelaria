@@ -40,6 +40,7 @@ class LoginForm extends Component {
 
 	componentWillMount(){
 		firebase.auth().onAuthStateChanged(user => {
+			console.log('user', user)
 			if(user){
 				this.setState({ loading: true })
 				console.log('USER ON AUTH STATE CHANGE', user.toJSON())
