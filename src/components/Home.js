@@ -82,15 +82,21 @@ class Home extends Component {
 		this.setState({ modalItem: item, visibleModal: true })
 	}
 	_renderItem = item => {
-		return (
-			<TouchableWithoutFeedback onPress={() => this.setItem(item)}>
-				<View style={styles.item}>
-					<Text style={styles.title}>{item.title}</Text>
-					<Text>{item.description}</Text>
-					<Text style={styles.price}>{item.price}</Text>
-				</View>
-			</TouchableWithoutFeedback>
-		)
+		if(item && item.active){
+			return (
+				<TouchableWithoutFeedback onPress={() => this.setItem(item)}>
+					<View style={styles.item}>
+						<Text style={styles.title}>{item.title}</Text>
+						<Text>{item.description}</Text>
+						<Text style={styles.price}>{item.price}</Text>
+					</View>
+				</TouchableWithoutFeedback>
+			)
+		} else {
+			return (
+				<View />
+			)
+		}
 	}
 
 	filterRadio = (param, index) => {
