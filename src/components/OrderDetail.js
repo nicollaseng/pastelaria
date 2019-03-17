@@ -139,8 +139,12 @@ class Chart extends Component {
 						</Text>
 						{/* <Text style={styles.leftOrderTextSubItemDescription}>{order.customer.address}, {order.customer.addressNumber}</Text>
 						<Text style={styles.leftOrderTextSubItemDescription}>{order.customer.neighborhood} - {order.customer.city}</Text> */}
-						<Text style={[styles.leftOrderTextSubItemDescription, { marginLeft: 9 }]}>Rua érico mota, 489</Text>
-						<Text style={[styles.leftOrderTextSubItemDescription, { marginLeft: 9 }]}>Centro - Fortaleza</Text>
+						<Text style={[styles.leftOrderTextSubItemDescription, { marginLeft: 9 }]}>
+              {order.customer.address},{order.customer.addressNumber}
+            </Text>
+						<Text style={[styles.leftOrderTextSubItemDescription, { marginLeft: 9 }]}>
+             {order.customer.neighborhood} - {order.customer.city}
+            </Text>
         	</View>
           <View style={styles.orderFurtherDetails}>
 						<Text style={[styles.leftOrderTextSubItemDescription, styles.address]}>
@@ -150,12 +154,14 @@ class Chart extends Component {
 							<View>
 								<Text style={styles.leftOrderTextSubItemDescription}>No. Pedido</Text>
 								<Text style={styles.leftOrderTextSubItemDescription}>Data do Pedido</Text>
-								<Text style={styles.leftOrderTextSubItemDescription}>Dinheiro</Text>
+								<Text style={styles.leftOrderTextSubItemDescription}>Método de pagamento</Text>
 							</View>
 							<View>
 								<Text style={[styles.leftOrderTextSubItemDescription, { textAlign: 'right'}]}>#{order.orderNumber}</Text>
-								<Text style={[styles.leftOrderTextSubItemDescription, { textAlign: 'right'}]}>{order.date}</Text>
-								<Text style={[styles.leftOrderTextSubItemDescription, { textAlign: 'right'}]}>Troco para R$ {order.totalPriceWithDelivery.toFixed(2)}</Text>
+								<Text style={[styles.leftOrderTextSubItemDescription, { textAlign: 'right'}]}>{order.createdAt}</Text>
+                <Text style={[styles.leftOrderTextSubItemDescription, { textAlign: 'right'}]}>
+                  {order.paymentMethod === 'Dinheiro' ? 'Troco para' : ''} {order.paymentMethod === 'Dinheiro' ? order.paymentChange : order.paymentMethod}
+                </Text>
 							</View>
 						</View>
         </View>

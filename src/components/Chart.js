@@ -24,7 +24,7 @@ import { logOut } from "../actions/AuthAction.js";
 import { withNavigation } from "react-navigation";
 import Icon from "react-native-vector-icons/FontAwesome5";
 import _ from "lodash"
-import { setChart } from "../actions/ChartAction.js";
+import { setChart, setPayment } from "../actions/ChartAction.js";
 import { tabNavigator } from "../actions/Navigation"
 import { submitOrder, setOrder } from "../actions/OrderAction"
 import uuid from 'uuid'
@@ -238,6 +238,7 @@ class Chart extends Component {
           this.props.setOrder(orderForDetails) // set all orders for order view section list
           this.props.setChart([]) // make empty chart again
           this.props.tabNavigator('order') //navigate to orders
+          this.props.setPayment('', '') // refresh payment method at redux
         })
       .catch(error => {
         Alert.alert('Ops :(', 'Algo de errado aconteceu. Tenta novamente!')
@@ -278,7 +279,7 @@ const mapStateToProps = state => ({
 
 export default connect(
   mapStateToProps,
-  { logOut, setChart, submitOrder, tabNavigator, setOrder }
+  { logOut, setChart, submitOrder, tabNavigator, setOrder, setPayment }
 )(withNavigation(Chart));
 
 const styles = {
