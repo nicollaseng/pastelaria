@@ -25,6 +25,8 @@ import { tabNavigator } from "../actions/Navigation"
 import { submitOrder, setOrder, setRating } from "../actions/OrderAction"
 import { Rating, AirbnbRating } from 'react-native-ratings';
 import Modal from 'react-native-modal';
+import { unMask, toMoney } from '../utils/mask'
+
 
 class Chart extends Component {
 
@@ -99,6 +101,8 @@ class Chart extends Component {
 
   _renderSubChart = () => {
     const { order } = this.props
+    let taxaEntrega = toMoney(unMask(parseFloat(this.props.address.deliveryTax)*100))
+    let finalPrice = toMoney(unMask((parseFloat(order.totalPrice.toFixed(2)) + parseFloat(this.props.address.deliveryTax))))
     if(order && Object.keys(order).length > 0){
       return (
         <View>
@@ -109,9 +113,9 @@ class Chart extends Component {
               <Text style={styles.leftOrderTotalText}>Total</Text>
             </View>
             <View style={styles.leftOrder}>
-              <Text style={[styles.leftOrderTextSubItemDescription, { textAlign: 'right'}]}>R$ {order.totalPrice.toFixed(2)}</Text>
-              <Text style={[styles.leftOrderTextSubItemDescription, { color: colors.text.free, textAlign:'right' }]}>Grátis</Text>
-              <Text style={[styles.leftOrderTotalText, { textAlign: 'right' }]}>R$ {order.totalPriceWithDelivery.toFixed(2)}</Text>
+              <Text style={[styles.leftOrderTextSubItemDescription, { textAlign: 'right'}]}>R$ {toMoney(unMask(order.totalPrice.toFixed(2)))}</Text>
+              <Text style={[styles.leftOrderTextSubItemDescription, { color: colors.text.free, textAlign:'right' }]}>R$ {taxaEntrega}</Text>
+              <Text style={[styles.leftOrderTotalText, { textAlign: 'right' }]}>R$ {finalPrice}</Text>
             </View>
           </View>
           <View style={styles.couponContainer}>
