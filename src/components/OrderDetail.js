@@ -26,6 +26,8 @@ import { submitOrder, setOrder, setRating } from "../actions/OrderAction"
 import { Rating, AirbnbRating } from 'react-native-ratings';
 import Modal from 'react-native-modal';
 import { unMask, toMoney } from '../utils/mask'
+import * as firebase from 'firebase'
+import { RESTAURANT } from 'react-native-dotenv'
 
 
 class Chart extends Component {
@@ -49,6 +51,15 @@ class Chart extends Component {
     }
   }
 
+  componentWillMount(){
+    let { order } = this.props
+    firebase.database().ref(`${RESTAURANT}/orders/${order.userId}/${order.orderId}`).on('value', (data) => {
+      console.log('atualizacao do pedido', data.val())
+      let status = data.val().status
+      this.setState({ orderStatus: status })
+    })
+  }
+
   componentWillReceiveProps(nextProps){
     let { chart } = nextProps
     let totalPriceArray = []
@@ -66,6 +77,7 @@ class Chart extends Component {
 
   _renderChart = () => {
     let { order } = this.props
+    console.log('order', order)
     if(order && Object.keys(order).length > 0) {
       return order.chart.map(itemChart => {
         return (
@@ -153,7 +165,7 @@ class Chart extends Component {
 							<Text style={styles.leftOrderTextSubItemDescription}>Status</Text>
 						</View>
 						<View>
-							<Text style={[styles.leftOrderTextSubItemDescription, { textAlign: 'right'}]}>{order.status}</Text>
+							<Text style={[styles.leftOrderTextSubItemDescription, { textAlign: 'right'}]}>{this.state.orderStatus}</Text>
 						</View>
 					</View>
         </View>
