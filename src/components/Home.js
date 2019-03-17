@@ -38,7 +38,7 @@ class Home extends Component {
 			itemQuantity: 1,
 			itemSizeDescription: '',
 			itemIngredientDescription: [],
-			itemFinalPrice: 0.0,
+			itemFinalPrice: 0,
 			finalPrice: 0,
 
 			itemSize: [],
@@ -98,29 +98,29 @@ class Home extends Component {
 		}
 	}
 
-	filterRadio = (param, index) => {
-		let { itemIngredient, itemIngredientDescription } = this.state
-		let indexFiltered = _.findIndex(itemIngredient, e => e === index)
-		let itemDescriptionFiltered = _.findIndex(itemIngredientDescription, e => e === param.title)
-		console.log('index filtered', indexFiltered)
-		if(indexFiltered !== -1 && itemDescriptionFiltered !== -1){
-			_.pullAt(itemIngredient, indexFiltered)
-			_.pullAt(itemIngredientDescription, itemDescriptionFiltered)
-			this.setState({ 
-				itemIngredient: itemIngredient, 
-				[`${param.title}Radio`]: !this.state[`${param.title}Radio`],
-				itemFinalPrice: this.state.itemFinalPrice - param.price < 0 ? 0 : this.state.itemFinalPrice - param.price,
-				itemIngredientDescription 
-			 })
-		} else {
-			return this.setState({
-				[`${param.title}Radio`]: !this.state[`${param.title}Radio`],
-				itemIngredient: itemIngredient.length <= 3 ? [...itemIngredient, index] : [],
-				itemFinalPrice: this.state.itemFinalPrice + param.price,
-				itemIngredientDescription: [...this.state.itemIngredientDescription, param.title]
-			})
-		}
-	}
+	// filterRadio = (param, index) => {
+	// 	let { itemIngredient, itemIngredientDescription } = this.state
+	// 	let indexFiltered = _.findIndex(itemIngredient, e => e === index)
+	// 	let itemDescriptionFiltered = _.findIndex(itemIngredientDescription, e => e === param.title)
+	// 	console.log('index filtered', indexFiltered)
+	// 	if(indexFiltered !== -1 && itemDescriptionFiltered !== -1){
+	// 		_.pullAt(itemIngredient, indexFiltered)
+	// 		_.pullAt(itemIngredientDescription, itemDescriptionFiltered)
+	// 		this.setState({ 
+	// 			itemIngredient: itemIngredient, 
+	// 			[`${param.title}Radio`]: !this.state[`${param.title}Radio`],
+	// 			itemFinalPrice: this.state.itemFinalPrice - param.price < 0 ? 0 : this.state.itemFinalPrice - param.price,
+	// 			itemIngredientDescription 
+	// 		 })
+	// 	} else {
+	// 		return this.setState({
+	// 			[`${param.title}Radio`]: !this.state[`${param.title}Radio`],
+	// 			itemIngredient: itemIngredient.length <= 3 ? [...itemIngredient, index] : [],
+	// 			itemFinalPrice: this.state.itemFinalPrice + param.price,
+	// 			itemIngredientDescription: [...this.state.itemIngredientDescription, param.title]
+	// 		})
+	// 	}
+	// }
 
 	setRadio = (param, index, category) => {
 		let { itemSize, itemIngredient, itemBag } = this.state
@@ -130,14 +130,12 @@ class Home extends Component {
 				return this.setState({
 					itemSize: itemSize.length === 0 ? [index] : [],
 					itemSizeDescription: param.title,
-					itemFinalPrice: itemSize.length === 0 ? this.state.itemFinalPrice + param.price : this.state.itemFinalPrice - param.price < 0 ? 0 : this.state.itemFinalPrice - param.price 
+					itemFinalPrice: itemSize.length === 0 ? this.state.itemFinalPrice + parseFloat(unMask(param.price))/100 : this.state.itemFinalPrice - parseFloat(unMask(param.price))/100 < 0 ? 0 : this.state.itemFinalPrice - parseFloat(unMask(param.price))/100 
 				})
-			case 'ingredient':
-				return this.filterRadio(param, index)
 			case 'bag': 
 			return this.setState({
 				itemBag: itemBag.length === 0 ? [index] : [],
-				itemFinalPrice: itemBag.length === 0 ? this.state.itemFinalPrice + param.price : this.state.itemFinalPrice - param.price < 0 ? 0 : this.state.itemFinalPrice - param.price 
+				itemFinalPrice: itemBag.length === 0 ? this.state.itemFinalPrice + parseFloat(unMask(param.price))/100 : this.state.itemFinalPrice - parseFloat(unMask(param.price))/100 < 0 ? 0 : this.state.itemFinalPrice - parseFloat(unMask(param.price))/100 
 			})
 		}
 	}
@@ -149,7 +147,7 @@ class Home extends Component {
 					<View style={[styles.item, { 	flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }]}>
 						<View>
 							<Text style={styles.title}>{item.title}</Text>
-							<Text style={[styles.price, { marginVertical: 2 }]}>+{item.price}</Text>
+							<Text style={[styles.price, { marginVertical: 2 }]}>+R$ {toMoney(unMask(item.price))}</Text>
 						</View>
 						<Radio
 							color={"#ccc"}
@@ -161,32 +159,32 @@ class Home extends Component {
 		)
 	}
 
-	maximumReached = (param) => {
-		Alert.alert('Ops', 'Só é possível selecionar três ingredientes extras')
-		return this.setState({ itemIngredient: [], [`${param.title}Radio`]: false })
-	}
+	// maximumReached = (param) => {
+	// 	Alert.alert('Ops', 'Só é possível selecionar três ingredientes extras')
+	// 	return this.setState({ itemIngredient: [], [`${param.title}Radio`]: false })
+	// }
 
-	_renderItemIngredient = (item, index, category) => {
-		console.log(category)
-		return (
-			<TouchableWithoutFeedback onPress={() => this.setRadio(item, index, category)}>
-					<View style={[styles.item, { 	flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }]}>
-						<View>
-							<Text style={styles.title}>{item.title}</Text>
-							<Text style={[styles.price, { marginVertical: 2 }]}>+{item.price}</Text>
-						</View>
-						<Radio
-							color={"#ccc"}
-							selectedColor={colors.primary}
-							selected={ 
-								this.state.itemIngredient.length <= 3 ? this.state[`${item.title}Radio`]
-								: this.maximumReached(item)
-						 }
-						/>
-					</View>
-			</TouchableWithoutFeedback>
-		)
-	}
+	// _renderItemIngredient = (item, index, category) => {
+	// 	console.log(category)
+	// 	return (
+	// 		<TouchableWithoutFeedback onPress={() => this.setRadio(item, index, category)}>
+	// 				<View style={[styles.item, { 	flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }]}>
+	// 					<View>
+	// 						<Text style={styles.title}>{item.title}</Text>
+	// 						<Text style={[styles.price, { marginVertical: 2 }]}>+{item.price}</Text>
+	// 					</View>
+	// 					<Radio
+	// 						color={"#ccc"}
+	// 						selectedColor={colors.primary}
+	// 						selected={ 
+	// 							this.state.itemIngredient.length <= 3 ? this.state[`${item.title}Radio`]
+	// 							: this.maximumReached(item)
+	// 					 }
+	// 					/>
+	// 				</View>
+	// 		</TouchableWithoutFeedback>
+	// 	)
+	// }
 
 	_renderItemBag = (item, index, category) => {
 		console.log(category)
@@ -195,7 +193,7 @@ class Home extends Component {
 					<View style={[styles.item, { 	flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }]}>
 						<View>
 							<Text style={styles.title}>{item.title}</Text>
-							<Text style={[styles.price, { marginVertical: 2 }]}>+{item.price}</Text>
+							<Text style={[styles.price, { marginVertical: 2 }]}>+ R$ {toMoney(unMask(item.price))}</Text>
 						</View>
 						<Radio
 							color={"#ccc"}
@@ -332,7 +330,7 @@ class Home extends Component {
 							<TouchableOpacity onPress={this.setChart}>
 								<View style={styles.addOrderSubContainer}>
 									<Text style={styles.addText}>Adicionar</Text>
-									<Text style={styles.addText}>R$ {this.state.itemQuantity > 1 ? this.state.finalPrice.toFixed(2) : this.state.itemFinalPrice.toFixed(2)}</Text>
+									<Text style={styles.addText}>R$ {this.state.itemQuantity > 1 ? toMoney(unMask(this.state.finalPrice.toFixed(2) )): toMoney(unMask(this.state.itemFinalPrice.toFixed(2)))}</Text>
 								</View>
 							</TouchableOpacity>
 						</View>
@@ -365,7 +363,7 @@ class Home extends Component {
 		this.props.tabNavigator('chart')
 	}
   render() {
-		console.log("state", this.state, 'props', this.props, 'storeapp', this.state.storeApp);
+		console.log("final price", this.state.finalPrice, 'item final price', this.state.itemFinalPrice);
     return (
 				<View style={styles.container}>
 					<Modal isVisible={this.state.visibleModal}>

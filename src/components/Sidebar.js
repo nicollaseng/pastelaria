@@ -82,7 +82,7 @@ const SideBar = props => (
     />
     </Content>
     <View style={{justifyContent: 'flex-end'}}>
-        <Text style={styles.version}>Versão 0.2.5beta</Text>
+        <Text style={styles.version}>Versão 0.2.6beta</Text>
     </View>
   </Container>
 );
