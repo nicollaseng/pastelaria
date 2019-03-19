@@ -25,7 +25,8 @@ import { logo, colors } from "../theme/global"
 import { connect } from 'react-redux'
 import * as firebase from 'firebase'
 import _ from "lodash"
-import { RESTAURANT } from 'react-native-dotenv'
+import { RESTAURANT, ONE_SIGNAL_ID } from 'react-native-dotenv'
+import OneSignal from 'react-native-onesignal'; // Import package from node modules
 
 class LoginForm extends Component {
 
@@ -35,10 +36,19 @@ class LoginForm extends Component {
 			email: '',
 			password: '',
 			loading: false,
+			userId: ''
 		}
 	}
 
 	componentWillMount(){
+		let userId;
+		OneSignal.init(ONE_SIGNAL_ID, {
+			kOSSettingsKeyAutoPrompt: true,
+		});
+		OneSignal.getPermissionSubscriptionState( (status) => {
+			userId =  status.userId;
+			this.setState({ userId })
+		});
 		firebase.auth().onAuthStateChanged(user => {
 			console.log('user', user)
 			if(user){
@@ -106,7 +116,7 @@ class LoginForm extends Component {
 		await firebase.database().ref(`${RESTAURANT}/users`).once('value', data => {
 			if(data){
 				let dataJson = data.toJSON()
-				let currentUser = dataJson[key]
+				let currentUser = {...dataJson[key], userDeviceId: this.state.userId}
 				console.log('data', data.toJSON(), currentUser)
 				this.setState({ loading: false })
 				this.props.signUp(currentUser)

@@ -187,7 +187,7 @@ class Chart extends Component {
           </View>
           <TouchableOpacity
             style={styles.finish}
-            onPress={() => this.props.payment && this.props.payment.length > 0 ? this.submitOrder(fullPrice) : this.setPayment()}>
+            onPress={() => this.props.payment && this.props.payment.length > 0 ? this.submitOrder(fullPrice, taxaEntrega) : this.setPayment()}>
             <Text style={styles.finishText}>
               {this.props.payment && this.props.payment.length > 0 ? 'Finalizar' : 'Selecionar pagamento'}
             </Text>
@@ -201,7 +201,7 @@ class Chart extends Component {
     return this.props.tabNavigator('payment')
   }
 
-  submitOrder = async (price) => {
+  submitOrder = async (price, taxaEntrega) => {
     Alert.alert('Hmmmmm', 'Seu pedido foi realizado com sucesso! Acompanhe o status de seu pedido na aba Pedidos')
     const { chart, customer } = this.props
     const { totalPrice, totalPriceWithDelivery, couponCode } = this.state
@@ -212,8 +212,10 @@ class Chart extends Component {
       orderNumber,
       orderId,
       userId,
+      userDeviceId: customer.userDeviceId, //very important for one signal specifc user notification
       chart,
       totalPrice: price,
+      deliveryPrice: taxaEntrega,
       totalPriceWithDelivery: price,
       couponCode,
       customer,
@@ -225,7 +227,6 @@ class Chart extends Component {
       paymentChange: this.props.paymentChange === undefined ? '' : this.props.paymentChange,
       status: 'Realizado'
     }
-
     // order for details is only for order list at order's screen - sectionlist
     const orderForDetails = [
       {title: orderNumber, data: [order]}

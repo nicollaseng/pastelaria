@@ -78,11 +78,11 @@ const SideBar = props => (
             </ListItem>
           )}
         </View>
-      )}g
+      )}
     />
     </Content>
     <View style={{justifyContent: 'flex-end'}}>
-        <Text style={styles.version}>Versão 0.5.14beta</Text>
+        <Text style={styles.version}>Versão 0.6.18beta</Text>
     </View>
   </Container>
 );

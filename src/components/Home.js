@@ -11,7 +11,7 @@ import {
 } from "react-native";
 import Icon from 'react-native-vector-icons/FontAwesome5';
 import _ from "lodash";
-import { Container, Header, Content, List, ListItem, Radio } from 'native-base'
+import { Container, Header, Content, List, ListItem, Radio, Thumbnail } from 'native-base'
 import SideBar from "./Sidebar";
 import getSideBarItems from "./SidebarItems";
 import {colors} from "../theme/global";
@@ -94,11 +94,14 @@ class Home extends Component {
 		if(item && item.active){
 			return (
 				<TouchableWithoutFeedback onPress={() => this.setItem(item)}>
-					<View style={styles.item}>
-						<Text style={styles.title}>{item.title}</Text>
-						<Text>{item.description}</Text>
-						<Text style={styles.price}>R$ {toMoney(unMask(item.price))}</Text>
-					</View>
+						<View style={styles.item}>
+							<View>
+								<Text style={styles.title}>{item.title}</Text>
+								<Text>{item.description}</Text>
+								<Text style={styles.price}>R$ {toMoney(unMask(item.price))}</Text>
+							</View>
+							<Thumbnail square large source={{uri: item.itemPhoto}} />
+						</View>
 				</TouchableWithoutFeedback>
 			)
 		} else {
@@ -436,6 +439,9 @@ const styles = {
 		backgroundColor : '#F5F5F5'
 	},
 	item: {
+		flexDirection: 'row',
+		justifyContent: 'space-between',
+		alignItems: 'center',
 		padding: 10,
 		marginHorizontal: 10,
 		borderBottomColor: '#ccc',
@@ -543,5 +549,10 @@ const styles = {
 		fontSize: 13.5,
 		marginHorizontal: 3.5,
 		fontWeight: '500',
+	},
+	itemContainer: {
+		flexDirection: 'row',
+		justifyContent: 'space-around',
+		alignItems: 'center'
 	}
 };
