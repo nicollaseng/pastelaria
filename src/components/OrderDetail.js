@@ -116,19 +116,22 @@ class Chart extends Component {
 
   _renderSubChart = () => {
     const { order } = this.props
+    console.log('order no detail', order.totalPrice)
     let taxaEntrega = toMoney(unMask(parseFloat(this.props.address.deliveryTax)*100))
-    let finalPrice = toMoney(unMask((parseFloat(order.totalPrice.toFixed(2)) + parseFloat(this.props.address.deliveryTax))))
+    let finalPrice = toMoney((parseFloat(order.totalPrice.toFixed(2)) + parseFloat(this.props.address.deliveryTax)).toFixed(2))
     if(order && Object.keys(order).length > 0){
       return (
         <View>
           <View style={styles.orderSubContainer}>
             <View style={styles.leftOrder}>
               <Text style={styles.leftOrderTextSubItemDescription}>Subtotal</Text>
+              <Text style={styles.leftOrderTextSubItemDescription}>Desconto(Voucher)</Text>
               <Text style={styles.leftOrderTextSubItemDescription}>Taxa de Entrega</Text>
               <Text style={styles.leftOrderTotalText}>Total</Text>
             </View>
             <View style={styles.leftOrder}>
-              <Text style={[styles.leftOrderTextSubItemDescription, { textAlign: 'right'}]}>R$ {toMoney(unMask(order.totalPrice.toFixed(2)))}</Text>
+              <Text style={[styles.leftOrderTextSubItemDescription, { textAlign: 'right'}]}>R$ {toMoney(unMask(order.itemsPrice.toFixed(2)))}</Text>
+              <Text style={[styles.leftOrderTextSubItemDescription, { textAlign: 'right', color: 'red'}]}>R$ {toMoney(unMask(order.offPrice.toFixed(2)))}</Text>
               <Text style={[styles.leftOrderTextSubItemDescription, { color: colors.text.free, textAlign:'right' }]}>R$ {taxaEntrega}</Text>
               <Text style={[styles.leftOrderTotalText, { textAlign: 'right' }]}>R$ {finalPrice}</Text>
             </View>

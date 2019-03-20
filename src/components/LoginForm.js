@@ -116,7 +116,7 @@ class LoginForm extends Component {
 		await firebase.database().ref(`${RESTAURANT}/users`).once('value', data => {
 			if(data){
 				let dataJson = data.toJSON()
-				let currentUser = {...dataJson[key], userDeviceId: this.state.userId}
+				let currentUser = {...dataJson[key], userDeviceId: this.state.userId }
 				console.log('data', data.toJSON(), currentUser)
 				this.setState({ loading: false })
 				this.props.signUp(currentUser)

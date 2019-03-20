@@ -30,11 +30,12 @@ import { submitOrder, setOrder } from "../actions/OrderAction"
 import uuid from 'uuid'
 import moment from 'moment'
 import * as firebase from 'firebase'
-import { RESTAURANT } from 'react-native-dotenv'
+import { RESTAURANT, ONE_SIGNAL_ID } from 'react-native-dotenv'
 import VMasker from 'vanilla-masker'
+import { unMask, toMoney } from '../utils/mask'
+import OneSignal from 'react-native-onesignal'; // Import package from node modules
 
 class Chart extends Component {
-
   constructor(props){
     super(props)
     this.state = {
@@ -42,17 +43,30 @@ class Chart extends Component {
       totalPriceWithDelivery: 0,
       couponCode: '',
       payment: false,
-      allOrders: []
+      allOrders: [],
+      userDeviceId: '',
     }
   }
 
   componentWillMount(){
     const userId = this.props.customer.userId
+    let userDeviceId;
+
     firebase.database().ref(`${RESTAURANT}/users/${userId}`).once('value', (snapshot) => {
       let allOrders = snapshot.val().orders
       console.log('willl mount', allOrders)
       this.setState({ allOrders })
-    })  
+    })
+
+		OneSignal.init(ONE_SIGNAL_ID, {
+			kOSSettingsKeyAutoPrompt: true,
+		});
+		OneSignal.getPermissionSubscriptionState( (status) => {
+      console.log('status', status)
+      userDeviceId =  status.userId;
+      console.log('userDeviceId', userDeviceId)
+      this.setState({ userDeviceId })
+    });
   }
 
   componentWillReceiveProps(nextProps){
@@ -163,7 +177,7 @@ class Chart extends Component {
               <Input
                 style={styles.inputCoupon}
                 value={this.state.couponCode}
-                onChangeText={(couponCode) => this.setState({ couponCode })}
+                onChangeText={(couponCode) => this.setState({ couponCode: couponCode.toLowerCase() })}
                 placeholder="Insira um código"
                 placeholderTextColor="#808080"
               />
@@ -212,9 +226,11 @@ class Chart extends Component {
       orderNumber,
       orderId,
       userId,
-      userDeviceId: customer.userDeviceId, //very important for one signal specifc user notification
+      userDeviceId: this.state.userDeviceId, //very important for one signal specifc user notification
       chart,
       totalPrice: price,
+      itemsPrice: price,
+      offPrice: 0,
       deliveryPrice: taxaEntrega,
       totalPriceWithDelivery: price,
       couponCode,
@@ -232,23 +248,130 @@ class Chart extends Component {
       {title: orderNumber, data: [order]}
     ]
     console.log('order to send', order)
-    firebase.database().ref(`${RESTAURANT}/orders/${userId}/${orderId}`).set(order)
-      .then(() => {
-          console.log('Created Order with Sucess')
-          this.props.submitOrder(order) // current order only
-          this.props.setOrder(orderForDetails) // set all orders for order view section list
-          this.props.setChart([]) // make empty chart again
-          this.props.tabNavigator('order') //navigate to orders
-          this.props.setPayment('', '') // refresh payment method at redux
-        })
-      .catch(error => {
-        Alert.alert('Ops :(', 'Algo de errado aconteceu. Tenta novamente!')
-        console.log('Error creating order at database: ', error)
-      })
+
+    // first checks if restaurant is open or not if it is next set order 
+    firebase.database().ref(`${RESTAURANT}/status`).on('value', data => {
+      if(data.val() !== null){
+        if(data.val()){
+          if(couponCode.length > 0){
+            //Check on server if coupon exist
+            firebase.database().ref(`/${RESTAURANT}/voucher`).on('value', coupon => {
+              if(coupon.val() !== null){
+                let coupons = coupon.val()
+                console.log('cupons', coupons)
+                let couponExist = _.filter(coupons, e => e.voucherCode == couponCode)
+                if(couponExist.length > 0){
+                  let today = moment(new Date()).format('DD/MM/YYYY')
+                  let expiryDate = moment(couponExist[0].voucherExpiryDate, "DDMMYYYY")
+                  let valid = expiryDate.diff(moment(today, "DDMMYYYY")) >= 0
+                  console.log('valid', valid, couponExist[0].voucherQuantity)
+                  if(valid === false ){
+
+                    Alert.alert('Atenção', 'Infelizmente esse voucher já expirou')
+                    return;
+                  }
+                  if(valid && couponExist[0].voucherQuantity === 'Única'){
+                    console.log('coupom unico')
+                    // Check if user already used this voucher if voucher uniq
+                    firebase.database().ref(`${RESTAURANT}/users/${userId}`).once('value', snapshot => {
+                      if(snapshot.val() !== null){
+                        let user = snapshot.val()
+                        let userVoucher = _.filter(user.voucher, userVoucher => {
+                          return userVoucher === couponCode
+                        })
+                        if(userVoucher.length > 0){
+                          Alert.alert('Atenção', 'Parece que você já utilizou esse voucher no passado')
+                        } else { //if user never used this voucher so proceed to finish chart
+                          let offPrice = price
+                          let voucherValue = parseFloat(couponExist[0].voucherPayment.split(",").join(""))/100
+                          let finalPrice = couponExist[0].voucherType === 'Dinheiro' ? offPrice - voucherValue : offPrice - (voucherValue/100)*offPrice
+
+                          console.log('price', offPrice, 'voucher value', voucherValue, finalPrice )
+
+                          firebase.database().ref(`${RESTAURANT}/orders/${userId}/${orderId}`).set({
+                            ...order,
+                            totalPrice: finalPrice <= 0 ? 0 : finalPrice,
+                            offPrice: couponExist[0].voucherType === 'Dinheiro' ? voucherValue : (voucherValue/100)*offPrice
+                          })
+                            .then(() => {
+                              let userVouchers = this.props.customer.voucher ? this.props.customer.voucher : []
+                              firebase.database().ref(`${RESTAURANT}/users/${userId}`).set({
+                                ...this.props.customer,
+                                voucher: [...userVouchers, couponCode]
+                              })
+                                .then(() => {
+                                  console.log('Created Order with Sucess and set voucher code at user')
+                                  this.props.submitOrder(order) // current order only
+                                  this.props.setOrder(orderForDetails) // set all orders for order view section list
+                                  this.props.setChart([]) // make empty chart again
+                                  this.props.tabNavigator('order') //navigate to orders
+                                  this.props.setPayment('', '') // refresh payment method at redux
+                                })
+                                .catch(err => console.log('error while updating user with voucher code', err))
+                              })
+                            .catch(error => {
+                              Alert.alert('Ops :(', 'Algo de errado aconteceu. Tenta novamente!')
+                              console.log('Error creating order at database: ', error)
+                            })
+                        }
+                      }
+                    })
+                  } else if(valid && couponExist[0].voucherQuantity === 'Ilimitado'){ //proceeds if voucher not uniq
+                    let offPrice = price
+                    let voucherValue = parseFloat(couponExist[0].voucherPayment.split(",").join(""))/100
+                    let finalPrice = couponExist[0].voucherType === 'Dinheiro' ? offPrice - voucherValue : offPrice - (voucherValue/100)*offPrice
+
+                    console.log('price', offPrice, 'voucher value', voucherValue, finalPrice )
+
+                    firebase.database().ref(`${RESTAURANT}/orders/${userId}/${orderId}`).set({
+                      ...order,
+                      totalPrice: finalPrice <= 0 ? 0 : finalPrice,
+                      offPrice: couponExist[0].voucherType === 'Dinheiro' ? voucherValue : (voucherValue/100)*offPrice
+                    })
+                      .then(() => {
+                          console.log('Created Order with Sucess')
+                          this.props.submitOrder(order) // current order only
+                          this.props.setOrder(orderForDetails) // set all orders for order view section list
+                          this.props.setChart([]) // make empty chart again
+                          this.props.tabNavigator('order') //navigate to orders
+                          this.props.setPayment('', '') // refresh payment method at redux
+                        })
+                      .catch(error => {
+                        Alert.alert('Ops :(', 'Algo de errado aconteceu. Tenta novamente!')
+                        console.log('Error creating order at database: ', error)
+                      })
+                  }
+                } else {
+                  Alert.alert('Atenção:', 'Coupom inválido!')
+                }
+                console.log('coupon', coupons)
+              }
+            })
+          } else { //there arent coupom code
+            firebase.database().ref(`${RESTAURANT}/orders/${userId}/${orderId}`).set(order)
+              .then(() => {
+                  console.log('Created Order with Sucess')
+                  this.props.submitOrder(order) // current order only
+                  this.props.setOrder(orderForDetails) // set all orders for order view section list
+                  this.props.setChart([]) // make empty chart again
+                  this.props.tabNavigator('order') //navigate to orders
+                  this.props.setPayment('', '') // refresh payment method at redux
+                })
+              .catch(error => {
+                Alert.alert('Ops :(', 'Algo de errado aconteceu. Tenta novamente!')
+                console.log('Error creating order at database: ', error)
+              })
+          }
+          } else {
+            Alert.alert('Atenção', 'estamos fechados no momento. Retorne no nosso horário de atendimento')
+          }
+      }
+    })
+
     }
 
   render() {
-    console.log("props do chart", this.props);
+    console.log("customer", this.props.customer);
     const { chart } = this.props   
     let totalPrice = 0
     chart.map(itemChart => {

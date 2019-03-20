@@ -77,16 +77,18 @@ class Order extends Component {
 		console.log('item', item)
 		return (
 			<TouchableWithoutFeedback onPress={() => this._orderDetail(item)}>
-					<View style={[styles.item, { 	flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center' }]}>
-						<View style={styles.dateContainer}>
-							<Text style={styles.title}>{item.dateDay}</Text>
-							<Text style={styles.title}>{this.renderMonth(item.dateMonth)}</Text>
+					<View style={[styles.item, { 	flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }]}>
+						<View style={{flex: 1.1, flexDirection: 'row', alignItems: 'center'}}>
+							<View style={styles.dateContainer}>
+								<Text style={styles.title}>{item.dateDay}</Text>
+								<Text style={styles.title}>{this.renderMonth(item.dateMonth)}</Text>
+							</View>
+							<View style={{ marginLeft: 5 }}>
+								<Text style={styles.orderNumber}>Pedido #{item.orderNumber}</Text>
+								<Text style={styles.itemText}>{item.chart[0].itemQuantity}x {item.chart[0].item}</Text>
+							</View>
 						</View>
-            <View style={{ marginHorizontal: 5 }}>
-              <Text style={styles.orderNumber}>Pedido #{item.orderNumber}</Text>
-              <Text style={styles.itemText}>{item.chart[0].itemQuantity}x {item.chart[0].item}</Text>
-            </View>
-            <View style={{ marginHorizontal: 5 }}>
+            <View style={{ marginRigth: 5 }}>
               <Text style={styles.orderDetails}>Detalhes</Text>
             </View>
 					</View>
@@ -304,7 +306,7 @@ const styles = {
 		fontWeight: '500',
   },
   dateContainer: {
-    width: '16%',
+    width: '19%',
     backgroundColor: '#f2f2f2',
     padding: 10,
   },
