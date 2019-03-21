@@ -321,6 +321,7 @@ class RegisterScreen extends Component {
       cpf,
       phone,
       orders: '',
+      voucher: ['foods'],
       createdAt: moment().format('DD/MM/YYYY HH:mm:ss'),
       updatedAt: moment().format('DD/MM/YYYY HH:mm:ss'),
     }

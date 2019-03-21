@@ -31,6 +31,7 @@ import { unMask, toMoney } from '../utils/mask'
 import * as firebase from 'firebase'
 import { RESTAURANT } from 'react-native-dotenv'
 import call from 'react-native-phone-call'
+import VMasker from 'vanilla-masker'
 
 
 class Chart extends Component {
@@ -117,8 +118,8 @@ class Chart extends Component {
   _renderSubChart = () => {
     const { order } = this.props
     console.log('order no detail', order.totalPrice)
-    let taxaEntrega = toMoney(unMask(parseFloat(this.props.address.deliveryTax)*100))
-    let finalPrice = toMoney((parseFloat(order.totalPrice.toFixed(2)) + parseFloat(this.props.address.deliveryTax)).toFixed(2))
+    let taxaEntrega = parseFloat(unMask(this.props.taxDelivery).split(",").join(""))/100
+    let finalPrice = VMasker.toMoney((parseFloat(order.totalPrice.toFixed(2)) + taxaEntrega))
     if(order && Object.keys(order).length > 0){
       return (
         <View>
@@ -132,7 +133,7 @@ class Chart extends Component {
             <View style={styles.leftOrder}>
               <Text style={[styles.leftOrderTextSubItemDescription, { textAlign: 'right'}]}>R$ {toMoney(unMask(order.itemsPrice.toFixed(2)))}</Text>
               <Text style={[styles.leftOrderTextSubItemDescription, { textAlign: 'right', color: 'red'}]}>R$ {toMoney(unMask(order.offPrice.toFixed(2)))}</Text>
-              <Text style={[styles.leftOrderTextSubItemDescription, { color: colors.text.free, textAlign:'right' }]}>R$ {taxaEntrega}</Text>
+              <Text style={[styles.leftOrderTextSubItemDescription, { color: colors.text.free, textAlign:'right' }]}> R$ {VMasker.toMoney(taxaEntrega*100)}</Text>
               <Text style={[styles.leftOrderTotalText, { textAlign: 'right' }]}>R$ {finalPrice}</Text>
             </View>
           </View>
@@ -285,7 +286,8 @@ const mapStateToProps = state => ({
 	allOrders: state.order.allOrders,
 	order: state.navigation.data,
   rating: state.order.rating,
-  restaurant: state.restaurant.restaurantInfo
+  restaurant: state.restaurant.restaurantInfo,
+  taxDelivery: state.restaurant.restaurantInfo.taxaEntregaKm,
 });
 
 export default connect(

@@ -20,7 +20,7 @@ import {colors} from "../theme/global";
 import FooterView from "./FooterView.js";
 // import { onSignOut, isSignedIn } from "../services/auth.js";
 import { connect } from "react-redux";
-import { logOut } from "../actions/AuthAction.js";
+import { logOut, updateUser } from "../actions/AuthAction.js";
 import { withNavigation } from "react-navigation";
 import Icon from "react-native-vector-icons/FontAwesome5";
 import _ from "lodash"
@@ -62,16 +62,13 @@ class Chart extends Component {
 			kOSSettingsKeyAutoPrompt: true,
 		});
 		OneSignal.getPermissionSubscriptionState( (status) => {
-      console.log('status', status)
       userDeviceId =  status.userId;
-      console.log('userDeviceId', userDeviceId)
       this.setState({ userDeviceId })
     });
   }
 
   componentWillReceiveProps(nextProps){
     let { chart } = nextProps
-    let totalPriceArray = []
     let totalPrice = 0
     if(chart && chart.length > 0) {
       return chart.map(itemChart => totalPrice = totalPrice + parseFloat(itemChart.itemPrice))
@@ -143,9 +140,9 @@ class Chart extends Component {
   _renderSubChart = (fullPrice) => {
     const { chart } = this.props
     let price = VMasker.toMoney(fullPrice.toFixed(2))
-    let taxaEntrega = VMasker.toMoney(parseFloat(this.props.address.deliveryTax)*100)
-    let finalPrice = VMasker.toMoney((parseFloat(fullPrice.toFixed(2)) + parseFloat(this.props.address.deliveryTax))*100)
-    console.log(price, taxaEntrega, finalPrice)
+    let taxaEntrega = parseFloat(unMask(this.props.taxDelivery).split(",").join(""))/100
+    let finalPrice = VMasker.toMoney((parseFloat(fullPrice.toFixed(2)) + taxaEntrega))
+    console.log(price, taxaEntrega, finalPrice, fullPrice.toFixed(2), fullPrice)
     if(chart && chart.length > 0){
       return (
         <View>
@@ -163,7 +160,7 @@ class Chart extends Component {
             <View style={styles.leftOrder}>
               <Text style={[styles.leftOrderTextSubItemDescription, { textAlign: 'right'}]}>R$ {price}</Text>
               <Text style={[styles.leftOrderTextSubItemDescription, { color: colors.text.free, textAlign:'right' }]}>
-               R$ {taxaEntrega}
+               R$ {VMasker.toMoney(taxaEntrega*100)}
               </Text>
               <Text style={[styles.leftOrderTotalText, { textAlign: 'right' }]}>R$ {finalPrice}</Text>
             </View>
@@ -177,7 +174,7 @@ class Chart extends Component {
               <Input
                 style={styles.inputCoupon}
                 value={this.state.couponCode}
-                onChangeText={(couponCode) => this.setState({ couponCode: couponCode.toLowerCase() })}
+                onChangeText={(couponCode) => this.setState({ couponCode })}
                 placeholder="Insira um código"
                 placeholderTextColor="#808080"
               />
@@ -216,7 +213,6 @@ class Chart extends Component {
   }
 
   submitOrder = async (price, taxaEntrega) => {
-    Alert.alert('Hmmmmm', 'Seu pedido foi realizado com sucesso! Acompanhe o status de seu pedido na aba Pedidos')
     const { chart, customer } = this.props
     const { totalPrice, totalPriceWithDelivery, couponCode } = this.state
     const orderNumber = Math.floor(Math.random() * 10001)
@@ -259,7 +255,7 @@ class Chart extends Component {
               if(coupon.val() !== null){
                 let coupons = coupon.val()
                 console.log('cupons', coupons)
-                let couponExist = _.filter(coupons, e => e.voucherCode == couponCode)
+                let couponExist = _.filter(coupons, e => e.voucherCode == couponCode.toLowerCase())
                 if(couponExist.length > 0){
                   let today = moment(new Date()).format('DD/MM/YYYY')
                   let expiryDate = moment(couponExist[0].voucherExpiryDate, "DDMMYYYY")
@@ -271,11 +267,11 @@ class Chart extends Component {
                     return;
                   }
                   if(valid && couponExist[0].voucherQuantity === 'Única'){
-                    console.log('coupom unico')
                     // Check if user already used this voucher if voucher uniq
                     firebase.database().ref(`${RESTAURANT}/users/${userId}`).once('value', snapshot => {
                       if(snapshot.val() !== null){
                         let user = snapshot.val()
+                        console.log('USER VOUCHER', user.voucher)
                         let userVoucher = _.filter(user.voucher, userVoucher => {
                           return userVoucher === couponCode
                         })
@@ -294,13 +290,14 @@ class Chart extends Component {
                             offPrice: couponExist[0].voucherType === 'Dinheiro' ? voucherValue : (voucherValue/100)*offPrice
                           })
                             .then(() => {
-                              let userVouchers = this.props.customer.voucher ? this.props.customer.voucher : []
-                              firebase.database().ref(`${RESTAURANT}/users/${userId}`).set({
-                                ...this.props.customer,
-                                voucher: [...userVouchers, couponCode]
+                              // let userVouchers = this.props.customer.voucher ? this.props.customer.voucher : []
+                              firebase.database().ref(`${RESTAURANT}/users/${userId}`).update({
+                                voucher: [...user.voucher, couponCode]
                               })
                                 .then(() => {
+                                  Alert.alert('Hmmmmm', 'Seu pedido foi realizado com sucesso! Acompanhe o status de seu pedido na aba Pedidos')
                                   console.log('Created Order with Sucess and set voucher code at user')
+                                  
                                   this.props.submitOrder(order) // current order only
                                   this.props.setOrder(orderForDetails) // set all orders for order view section list
                                   this.props.setChart([]) // make empty chart again
@@ -330,6 +327,7 @@ class Chart extends Component {
                     })
                       .then(() => {
                           console.log('Created Order with Sucess')
+                          Alert.alert('Hmmmmm', 'Seu pedido foi realizado com sucesso! Acompanhe o status de seu pedido na aba Pedidos')
                           this.props.submitOrder(order) // current order only
                           this.props.setOrder(orderForDetails) // set all orders for order view section list
                           this.props.setChart([]) // make empty chart again
@@ -351,6 +349,7 @@ class Chart extends Component {
             firebase.database().ref(`${RESTAURANT}/orders/${userId}/${orderId}`).set(order)
               .then(() => {
                   console.log('Created Order with Sucess')
+                  Alert.alert('Hmmmmm', 'Seu pedido foi realizado com sucesso! Acompanhe o status de seu pedido na aba Pedidos')
                   this.props.submitOrder(order) // current order only
                   this.props.setOrder(orderForDetails) // set all orders for order view section list
                   this.props.setChart([]) // make empty chart again
@@ -371,7 +370,7 @@ class Chart extends Component {
     }
 
   render() {
-    console.log("customer", this.props.customer);
+    console.log("customer", this.props);
     const { chart } = this.props   
     let totalPrice = 0
     chart.map(itemChart => {
@@ -394,6 +393,7 @@ class Chart extends Component {
 const mapStateToProps = state => ({
   chart: state.chart.chart,
   address: state.authReducer.currentUser,
+  taxDelivery: state.restaurant.restaurantInfo.taxaEntregaKm,
   customer: state.authReducer.currentUser,
   allOrders: state.authReducer.currentUser.orders,
   payment: state.chart.payment,
@@ -403,7 +403,7 @@ const mapStateToProps = state => ({
 
 export default connect(
   mapStateToProps,
-  { logOut, setChart, submitOrder, tabNavigator, setOrder, setPayment }
+  { logOut, setChart, submitOrder, tabNavigator, setOrder, setPayment, updateUser }
 )(withNavigation(Chart));
 
 const styles = {

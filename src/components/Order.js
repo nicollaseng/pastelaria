@@ -165,7 +165,7 @@ class Order extends Component {
 
 const mapStateToProps = state => ({
 	allOrders: state.order.allOrders,
-	userId: state.authReducer.currentUser.userId
+	userId: state.authReducer.currentUser.userId,
 });
 
 export default connect(
