@@ -1,22 +1,16 @@
 import React, { Component } from "react";
 import {
   Alert,
-  StyleSheet,
   Text,
   TouchableOpacity,
-	AsyncStorage,
 	SectionList,
 	View,
 	TouchableWithoutFeedback
 } from "react-native";
 import Icon from 'react-native-vector-icons/FontAwesome5';
 import _ from "lodash";
-import { Container, Header, Content, List, ListItem, Radio, Thumbnail } from 'native-base'
-import SideBar from "./Sidebar";
-import getSideBarItems from "./SidebarItems";
+import { Content, Radio, Thumbnail, Textarea } from 'native-base'
 import {colors} from "../theme/global";
-import FooterView from "./FooterView.js";
-// import { onSignOut, isSignedIn } from "../services/auth.js";
 import { connect } from "react-redux";
 import { setChart } from "../actions/ChartAction.js";
 import { setRestaurantInfo } from "../actions/RestaurantAction";
@@ -41,6 +35,7 @@ class Home extends Component {
 			itemIngredientDescription: [],
 			itemFinalPrice: 0,
 			finalPrice: 0,
+			note: '',
 
 			itemSize: [],
 			itemIngredient: [],
@@ -145,11 +140,11 @@ class Home extends Component {
 					itemSizeDescription: param.title,
 					itemFinalPrice: itemSize.length === 0 ? this.state.itemFinalPrice + parseFloat(unMask(param.price))/100 : this.state.itemFinalPrice - parseFloat(unMask(param.price))/100 < 0 ? 0 : this.state.itemFinalPrice - parseFloat(unMask(param.price))/100 
 				}, () => this.setState({ sizeChecked: !this.state.sizeChecked }))
-			case 'bag': 
-				return this.setState({
-					itemBag: itemBag.length === 0 ? [index] : [],
-					itemFinalPrice: itemBag.length === 0 ? this.state.itemFinalPrice + parseFloat(unMask(param.price))/100 : this.state.itemFinalPrice - parseFloat(unMask(param.price))/100 < 0 ? 0 : this.state.itemFinalPrice - parseFloat(unMask(param.price))/100 
-				}, () => this.setState({ bagChecked: !this.state.bagChecked }))
+			// case 'bag': 
+			// 	return this.setState({
+			// 		itemBag: itemBag.length === 0 ? [index] : [],
+			// 		itemFinalPrice: itemBag.length === 0 ? this.state.itemFinalPrice + parseFloat(unMask(param.price))/100 : this.state.itemFinalPrice - parseFloat(unMask(param.price))/100 < 0 ? 0 : this.state.itemFinalPrice - parseFloat(unMask(param.price))/100 
+			// 	}, () => this.setState({ bagChecked: !this.state.bagChecked }))
 		}
 	}
 
@@ -199,24 +194,24 @@ class Home extends Component {
 	// 	)
 	// }
 
-	_renderItemBag = (item, index, category) => {
-		console.log('index', index)
-		return (
-			<TouchableWithoutFeedback onPress={() => this.setRadio(item, index, category)}>
-					<View style={[styles.item, { 	flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }]}>
-						<View>
-							<Text style={styles.title}>{item.title}</Text>
-							<Text style={[styles.price, { marginVertical: 2 }]}>+ R$ {toMoney(unMask(item.price))}</Text>
-						</View>
-						<Radio
-							color={"#ccc"}
-							selectedColor={colors.primary}
-							selected={this.state.itemBag[0] === index}
-						/>
-					</View>
-			</TouchableWithoutFeedback>
-		)
-	}
+	// _renderItemBag = (item, index, category) => {
+	// 	console.log('index', index)
+	// 	return (
+	// 		<TouchableWithoutFeedback onPress={() => this.setRadio(item, index, category)}>
+	// 				<View style={[styles.item, { 	flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }]}>
+	// 					<View>
+	// 						<Text style={styles.title}>{item.title}</Text>
+	// 						<Text style={[styles.price, { marginVertical: 2 }]}>+ R$ {toMoney(unMask(item.price))}</Text>
+	// 					</View>
+	// 					<Radio
+	// 						color={"#ccc"}
+	// 						selectedColor={colors.primary}
+	// 						selected={this.state.itemBag[0] === index}
+	// 					/>
+	// 				</View>
+	// 		</TouchableWithoutFeedback>
+	// 	)
+	// }
 
 	_renderModalListSize = (param) => {
 		return (
@@ -241,17 +236,17 @@ class Home extends Component {
 	// 	)
 	// }
 
-	_renderModalListBag = (param) => {
-		return (
-			<View style={styles.modalItemSize}>
-				<Text style={styles.modalItemsOptions}>Embalagem</Text>
-				<View style={styles.modalItemOptionsFooter}>
-					<Text>{`${this.state.item.sizeQuantity} de 1`}</Text>
-					<Text style={styles.modalMandatory}>OBRIGATÓRIO</Text>
-				</View>
-			</View>
-		)
-	}
+	// _renderModalListBag = (param) => {
+	// 	return (
+	// 		<View style={styles.modalItemSize}>
+	// 			<Text style={styles.modalItemsOptions}>Embalagem</Text>
+	// 			<View style={styles.modalItemOptionsFooter}>
+	// 				<Text>{`${this.state.item.sizeQuantity} de 1`}</Text>
+	// 				<Text style={styles.modalMandatory}>OBRIGATÓRIO</Text>
+	// 			</View>
+	// 		</View>
+	// 	)
+	// }
 
 	_renderModal = () => {
 		const { modalItem } = this.state
@@ -311,7 +306,7 @@ class Home extends Component {
 
 					{/* embalagem */}
 
-					<SectionList
+					{/* <SectionList
 						sections={[
 							{title: '', data: [
 								{title: 'Embalagem', price: 0.9},
@@ -320,7 +315,17 @@ class Home extends Component {
 						renderSectionHeader={ ({section}) =>  this._renderModalListBag(section) }
 						renderItem={ ({item, index}) => this._renderItemBag(item, index, 'bag') }
 						keyExtractor={ (item, index) => index }
-					/>
+					/> */}
+						<View style={{ padding: 8 }}>
+							<Text style={{ padding: 8 }}> Insira uma observação </Text>
+							<Textarea
+								rowSpan={5}
+								bordered
+								placeholder="Insira uma breve observação sobre seu pedido"
+								onChange={note => this.setState({ note })}
+								value={this.state.note}
+							/>
+						</View>
 					</View>
 					<View style={styles.footer}>
 						{/* inclusao de mais produtos */}
@@ -354,19 +359,20 @@ class Home extends Component {
 	}
 
 	setChart = () => {
-		if(!this.state.sizeChecked || !this.state.bagChecked){
+		if(!this.state.sizeChecked){
 			Alert.alert('Atenção:', 'Selecione todos os itens obrigatórios')
 			return;
 		}
 		let globalChart = this.props.chart
-		const { modalItem, itemIngredientDescription, itemSizeDescription, itemQuantity, finalPrice, itemFinalPrice } = this.state
+		const { modalItem, itemIngredientDescription, itemSizeDescription, itemQuantity, finalPrice, itemFinalPrice, note } = this.state
 		let itemOrdered = {
 			item: modalItem.title,
 			itemIngredientDescription,
 			itemSizeDescription,
 			bag: true,
 			itemQuantity,
-			itemPrice: finalPrice === 0 ? itemFinalPrice.toFixed(2) : finalPrice.toFixed(2)
+			itemPrice: finalPrice === 0 ? itemFinalPrice.toFixed(2) : finalPrice.toFixed(2),
+			note,
 			// itemSize:
 		}
 		console.log('itemOrdered', itemOrdered)
@@ -375,7 +381,8 @@ class Home extends Component {
 			visibleModal: false, 	
 			itemSize: [],
 			itemIngredient: [],
-			itemBag: []
+			itemBag: [],
+			note: ''
 		})
 		this.props.tabNavigator('chart')
 	}

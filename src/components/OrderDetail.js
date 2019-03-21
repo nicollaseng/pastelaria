@@ -119,7 +119,7 @@ class Chart extends Component {
     const { order } = this.props
     console.log('order no detail', order.totalPrice)
     let taxaEntrega = parseFloat(unMask(this.props.taxDelivery).split(",").join(""))/100
-    let finalPrice = VMasker.toMoney((parseFloat(order.totalPrice.toFixed(2)) + taxaEntrega))
+    let finalPrice = VMasker.toMoney((parseFloat(order.totalPrice.toFixed(2)) + taxaEntrega)*100)
     if(order && Object.keys(order).length > 0){
       return (
         <View>

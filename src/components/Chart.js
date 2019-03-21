@@ -141,7 +141,7 @@ class Chart extends Component {
     const { chart } = this.props
     let price = VMasker.toMoney(fullPrice.toFixed(2))
     let taxaEntrega = parseFloat(unMask(this.props.taxDelivery).split(",").join(""))/100
-    let finalPrice = VMasker.toMoney((parseFloat(fullPrice.toFixed(2)) + taxaEntrega))
+    let finalPrice = VMasker.toMoney((fullPrice + taxaEntrega)*100)
     console.log(price, taxaEntrega, finalPrice, fullPrice.toFixed(2), fullPrice)
     if(chart && chart.length > 0){
       return (
@@ -297,7 +297,7 @@ class Chart extends Component {
                                 .then(() => {
                                   Alert.alert('Hmmmmm', 'Seu pedido foi realizado com sucesso! Acompanhe o status de seu pedido na aba Pedidos')
                                   console.log('Created Order with Sucess and set voucher code at user')
-                                  
+
                                   this.props.submitOrder(order) // current order only
                                   this.props.setOrder(orderForDetails) // set all orders for order view section list
                                   this.props.setChart([]) // make empty chart again
