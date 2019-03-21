@@ -28,7 +28,7 @@ import {
 import Dimensions from '../utils/dimensions'
 import HeaderView from './HeaderView';
 import estados from '../utils/estados'
-import applyMask, { brPhone, unMask, brCpf, brCep } from '../utils/maks';
+import applyMask, { brPhone, unMask } from '../utils/maks';
 import {colors} from '../theme/global'
 import { withNavigation } from 'react-navigation'
 import * as firebase from 'firebase'
@@ -135,7 +135,6 @@ class RegisterScreen extends Component {
       name: '',
       phone: '',
       email: '',
-      cpf: '',
       password: '',
       passwordConf: '',
       enderecoCep: '',
@@ -173,7 +172,6 @@ class RegisterScreen extends Component {
         name: currentUser.name,
         phone:  currentUser.phone,
         email: currentUser.email,
-        cpf: currentUser.cpf,
         enderecoNumero: currentUser.addressNumber,
 				enderecoLogradouro: currentUser.address,
 				enderecoLocalidade: currentUser.city,
@@ -222,7 +220,6 @@ class RegisterScreen extends Component {
 			name,
 			phone,
       email,
-      cpf,
 			password,
       passwordConf,
       enderecoLogradouro,
@@ -307,7 +304,6 @@ class RegisterScreen extends Component {
        location,
        name,
        email,
-       cpf,
        phone,
        password,
        } = this.state
@@ -318,7 +314,6 @@ class RegisterScreen extends Component {
 			location,
 			name,
       email,
-      cpf,
       phone,
       orders: '',
       voucher: ['foods'],
@@ -329,7 +324,7 @@ class RegisterScreen extends Component {
     console.log('current user props', currentUser)
     if(this.props.currentUser && Object.keys(this.props.currentUser).length > 0){
       firebase.database().ref(`${RESTAURANT}/users/${this.props.currentUser.userId}`)
-        .update({name, email, cpf, phone, photo64 })
+        .update({name, email, phone, photo64 })
         .then(() => {
           console.log('User info updated successfully')
           this.setState({ isLoading: false })
@@ -415,12 +410,13 @@ class RegisterScreen extends Component {
       });
 	}
 	
-	selectPhoto = () => {
+	selectPhoto = async () => {
 		/**
 	 * The first arg is the options object for customization (it can also be null or omitted for default options),
 	 * The second arg is the callback which sends object: response (more info in the API Reference)
 	 */
-		ImagePicker.showImagePicker(options, (response) => {
+		await ImagePicker.showImagePicker(options, (response) => {
+      console.log('response da photo', response)
 			if (response.didCancel) {
 				console.log('User cancelled image picker');
 			} else if (response.error) {
@@ -428,13 +424,20 @@ class RegisterScreen extends Component {
 			} else if (response.customButton) {
 				console.log('User tapped custom button: ', response.customButton);
 			} else {
-				const source = { uri: response.uri };
+        const source = { uri: response.uri };
+        console.log('source da photo', source)
 				this.setState({
           photo64: response.data,
           profilePhoto: source
 				});
 			}
-		});
+    })
+    // .then(result => {
+    //   console.log('result da promisse', result)
+    // })
+    // .catch(err => {
+    //   console.log('err da photo', err)
+    // })
 	}
 
 	handleEstadoChange = (estado) => {
@@ -449,125 +452,8 @@ class RegisterScreen extends Component {
     }
   }
 
-  // _renderAddress = () => {
-  //   const { currentUser } = this.props
-  //   if(currentUser && Object.keys(currentUser).length > 0){
-  //     <View>
-  //       <View style={styles.logoTextHolder}>
-  //         <Label style={styles.logoText}>Endereço</Label>
-  //       </View>
-  //       <Grid>
-  //         <Col style={{ flex: 0.6 }}>
-  //           <Item
-  //             stackedLabel
-  //           >
-  //             <Label>CEP</Label>
-  //             <Input
-  //               ref={(c) => { this.cepInput = c; }}
-  //               onEndEditing={() => this.handleSearchCepButtonClick()}
-  //               returnKeyType="next"
-  //               keyboardType="phone-pad"
-  //               onChangeText={applyMask(this, 'enderecoCep', brCep)}
-  //               value={this.state.enderecoCep}
-  //             />
-  //           </Item>
-  //         </Col>
-  //         <Col
-  //           style={{
-  //             flex: 0.4,
-  //             marginLeft: 10,
-  //             justifyContent: 'center',
-  //             alignItems: 'center'
-  //           }}
-  //         >
-  //           <Button
-  //             block
-  //             style={styles.cepButton}
-  //             onPress={this.handleSearchCepButtonClick}
-  //           >
-  //             <Text>
-  //               Buscar
-  //             </Text>
-  //           </Button>
-  //         </Col>
-  //       </Grid>
-  //       <Grid>
-  //         <Col style={{ flex: 0.7 }}>
-  //           <Item
-  //             stackedLabel
-  //           >
-  //             <Label>Logradouro</Label>
-  //             <Input
-  //               ref={(c) => { this.enderecoLogradouroInput = c; }}
-  //               onSubmitEditing={() => this.focusInput('enderecoNumeroInput')}
-  //               returnKeyType="next"
-  //               onChangeText={enderecoLogradouro => this.setState({ enderecoLogradouro })}
-  //               value={this.state.enderecoLogradouro}
-  //             />
-  //           </Item>
-  //         </Col>
-  //         <Col style={{ flex: 0.3 }}>
-  //           <Item
-  //             stackedLabel
-  //           >
-  //             <Label>Nº</Label>
-  //             <Input
-  //               ref={(c) => { this.enderecoNumeroInput = c; }}
-  //               onSubmitEditing={() => this.focusInput('enderecoBairroInput')}
-  //               returnKeyType="next"
-  //               onChangeText={enderecoNumero => this.setState({ enderecoNumero })}
-  //               value={this.state.enderecoNumero}
-  //             />
-  //           </Item>
-  //         </Col>
-  //       </Grid>
-  //       <Item
-  //         stackedLabel
-  //       >
-  //         <Label>Bairro</Label>
-  //         <Input
-  //           ref={(c) => { this.enderecoBairroInput = c; }}
-  //           onSubmitEditing={() => this.focusInput('enderecoLocalidadeInput')}
-  //           returnKeyType="next"
-  //           onChangeText={enderecoBairro => this.setState({ enderecoBairro })}
-  //           value={this.state.enderecoBairro}
-  //         />
-  //       </Item>
-  //       <Grid>
-  //         <Col style={{ flex: 0.7 }}>
-  //           <Item
-  //             stackedLabel
-  //           >
-  //             <Label>Cidade</Label>
-  //             <Input
-  //               ref={(c) => { this.enderecoLocalidadeInput = c; }}
-  //               onSubmitEditing={() => this.focusInput('enderecoEstadoInput')}
-  //               returnKeyType="next"
-  //               onChangeText={enderecoLocalidade => this.setState({ enderecoLocalidade })}
-  //               value={this.state.enderecoLocalidade}
-  //             />
-  //           </Item>
-  //         </Col>
-  //         <Col style={{ flex: 0.3 }}>
-  //           <View style={styles.estadoContainer}>
-  //             <Picker
-  //               mode="dropdown"
-  //               placeholder="Estado"
-  //               selectedValue={this.state.enderecoEstado}
-  //               onValueChange={this.handleEstadoChange}
-  //             >
-  //               {estados.map(estado =>
-  //                 <Item key={estado.sigla} label={estado.sigla} value={estado.sigla} />)}
-  //             </Picker>
-  //           </View>
-  //         </Col>
-  //       </Grid> 
-  //     </View>
-  //   }
-  // }
-
   render() {
-    console.log('props', this.props)
+    console.log('props', this.state)
     const { isLoading } = this.state;
     const { currentUser } = this.props
     return (
@@ -585,7 +471,7 @@ class RegisterScreen extends Component {
 						<TouchableWithoutFeedback onPress={this.selectPhoto}>
               <Thumbnail
                 large
-                source={this.state.profilePhoto && this.state.profilePhoto.length > 0 ? {uri: this.state.profilePhoto} : require('../assets/img/avatar.png')} />
+                source={this.state.profilePhoto && Object.keys(this.state.profilePhoto).length > 0 ? this.state.profilePhoto : require('../assets/img/avatar.png')} />
 						</TouchableWithoutFeedback>
 						<Text style={styles.subLabel}> Clique e selecione uma foto de perfil </Text>
 					</View>
@@ -622,7 +508,7 @@ class RegisterScreen extends Component {
                 <Label>E-mail</Label>
                 <Input
                   ref={(c) => { this.emailInput = c; }}
-                  onSubmitEditing={() => this.focusInput('cpfInput')}
+                  onSubmitEditing={() => this.focusInput('passwordInput')}
                   returnKeyType="next"
                   autoCapitalize="none"
                   onChangeText={email => this.setState({ email })}
@@ -630,7 +516,7 @@ class RegisterScreen extends Component {
                   keyboardType="email-address"
                 />
               </Item>
-              <Item
+              {/* <Item
                 stackedLabel
               >
                 <Label>CPF</Label>
@@ -642,7 +528,7 @@ class RegisterScreen extends Component {
                   value={this.state.cpf}
                   keyboardType="number-pad"
                 />
-              </Item>
+              </Item> */}
               <Item
                 stackedLabel
               >

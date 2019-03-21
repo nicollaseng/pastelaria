@@ -17,7 +17,7 @@ import {
   Drawer,
   Button,
   Container,
-  Spinner
+  Thumbnail
 } from "native-base";
 
 import SideBar from "./Sidebar";
@@ -96,7 +96,25 @@ class Dashboard extends Component {
 		}
   }
 
+  renderTabTitle = tab => {
+    switch(tab){
+			case 'home':
+				return 'Cardápio'
+			case 'chart':
+				return 'Carrinho'
+			case 'order':
+				return 'Pedidos'
+      case 'orderDetail':
+        return 'Detalhes pedido'
+      case 'payment':
+        return 'Formas de pagamento'
+			default:
+				return 'Cardápio'
+		}
+  }
+
   render() {
+    const { tab } = this.props
     console.log("props DA DASHBOARD", this.props);
     return (
       <Drawer
@@ -114,6 +132,9 @@ class Dashboard extends Component {
                 <Icon name="menu" />
               </Button>
             </Left>
+            <Body>
+              <Title style={styles.headerTitle}>{this.renderTabTitle(tab)}</Title>
+            </Body>
             <Right />
           </Header>
           {this.renderScreen()}
@@ -143,4 +164,10 @@ const styles = {
   header: {
     backgroundColor: colors.header.primary
   },
+  headerTitle: {
+    fontSize: 18,
+    color: '#fff',
+    fontWeigth: '500',
+    textAlign: 'center'
+  }
 };

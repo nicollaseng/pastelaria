@@ -14,6 +14,7 @@ import {
   Icon,
   Header,
   Body,
+  Thumbnail
 } from "native-base";
 
 import PropTypes from "prop-types";
@@ -37,9 +38,12 @@ const SideBar = props => (
   <Content>
     <View style={styles.container}>
         <View style={{ width: '15.7%', margin: 7}}>
-          <TouchableOpacity style={styles.headerProfileButton}>
-            <Text style={styles.headerProfileText}>{_getInitialLetter(props.currentUser.name)}</Text>
-          </TouchableOpacity>
+          <Thumbnail
+          large
+          source={
+            props.currentUser.photo64 && props.currentUser.photo64.length > 0 ?
+              {uri: `data:image/png;base64,${props.currentUser.photo64}`} : require('../assets/img/avatar.png')}
+          />
         </View>
         <View style={{ margin: 7}}>
           <Text style={styles.headerText}>{props.currentUser.name}</Text>
@@ -82,7 +86,7 @@ const SideBar = props => (
     />
     </Content>
     <View style={{justifyContent: 'flex-end'}}>
-        <Text style={styles.version}>Versão 0.9.21beta</Text>
+        <Text style={styles.version}>Versão 0.10.21beta</Text>
     </View>
   </Container>
 );

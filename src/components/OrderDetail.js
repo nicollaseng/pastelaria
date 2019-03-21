@@ -126,7 +126,7 @@ class Chart extends Component {
           <View style={styles.orderSubContainer}>
             <View style={styles.leftOrder}>
               <Text style={styles.leftOrderTextSubItemDescription}>Subtotal</Text>
-              <Text style={styles.leftOrderTextSubItemDescription}>Desconto(Voucher)</Text>
+              <Text style={styles.leftOrderTextSubItemDescription}>Desconto (Voucher)</Text>
               <Text style={styles.leftOrderTextSubItemDescription}>Taxa de Entrega</Text>
               <Text style={styles.leftOrderTotalText}>Total</Text>
             </View>

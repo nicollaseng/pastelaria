@@ -15,6 +15,7 @@ const colors = {
 			title: {
 				primary: "#4d4d4d"
 			},
+			footer: '#808080',
 			warning: "#e60000",
 			forgotPassord: "#8c8c8c",
 			category: '#3fb6e6',

@@ -8,7 +8,9 @@ import {
 	 Input,
 	 Label,
 	 Button,
-	 Text } from 'native-base'
+	 Text,
+	 Container,
+	  	} from 'native-base'
 import { withNavigation } from 'react-navigation'
 import HeaderView from '../../components/HeaderView'
 import VMasker from 'vanilla-masker'
@@ -20,6 +22,7 @@ import { connect } from 'react-redux'
 import { signUp, setAddress } from '../../actions/AuthAction'
 import { setRestaurantInfo } from '../../actions/RestaurantAction'
 import * as firebase from 'firebase'
+import Dimensions from '../../utils/dimensions'
 import { RESTAURANT } from 'react-native-dotenv'
 
 
@@ -46,7 +49,9 @@ class CEPScreen extends Component {
 			addressNumber: '',
 			address: '',
 			city: '',
-			neighborhood: ''
+			neighborhood: '',
+			aditionalAddressInformation:'',
+			nearestAddressPoint: ''
 		}
 	}
 	
@@ -54,8 +59,8 @@ class CEPScreen extends Component {
 		this.props.navigation.navigate('CEP')
 	}
 
-	onBack = () => {
-		this.props.navigation.goBack()
+	onBack = (oldUser) => {
+		oldUser ? this.props.navigation.navigate('DashBoard') : this.props.navigation.goBack()
 	}
 
 	handleInput = (param) => {
@@ -123,7 +128,17 @@ class CEPScreen extends Component {
 
 	checkAddress = async () => {
 		const { currentUser} = this.props
-		const { addressNumber, city, address, userLatitude, userLongitude, cep, neighborhood, tax, restaurantRadius} = this.state
+		const { addressNumber,
+						 city,
+						 address,
+						 userLatitude,
+						 userLongitude,
+						 cep,
+						 neighborhood,
+						 tax,
+						 aditionalAddressInformation,
+						 nearestAddressPoint,
+					} = this.state
 		let distance;
 		this.setState({ loading: true })
 		// bellow we check distance between restaurant and user 
@@ -153,7 +168,9 @@ class CEPScreen extends Component {
 					address,
 					city,
 					neighborhood,
-					deliveryTax
+					deliveryTax,
+					aditionalAddressInformation,
+					nearestAddressPoint,
 				}
 				console.log('current user address', currentUserAddress)
 
@@ -169,7 +186,9 @@ class CEPScreen extends Component {
 							address,
 							city,
 							neighborhood,
-							deliveryTax
+							deliveryTax,
+							aditionalAddressInformation,
+							nearestAddressPoint,
 						})
 						.then(() => {
 							console.log('User info updated successfully')
@@ -193,20 +212,24 @@ class CEPScreen extends Component {
 				Alert.alert('Atenção', 'Ops, houve algo errado :(  tente novamente em alguns instantes')
 			})
 	}
-	
+
+	focusInput(inputField) {
+    this[inputField]._root.focus();
+  }
 
 	render(){
 		const { currentUser } = this.props
 		const oldUser = currentUser && Object.keys(currentUser).length > 0
 		return (
 			<View style={styles.container}>
-				<HeaderView title={oldUser ? 'Meu endereço' : 'Consultar CEP'} onBack={this.onBack} />
+				<HeaderView title={oldUser ? 'Meu endereço' : 'Consultar CEP'} onBack={() => this.onBack(oldUser)} />
 				<View style={styles.subContainer}>
 						{!this.state.fetch ? (
 						<View>
 								<Text style={styles.cep}> CEP </Text>
 								<Item inlineLabel>
 									<Input
+										keyboardType='numeric'
 										value={this.state.cep}
 										style={[ styles.input, { borderBottomColor: this.state.borderBottomColor} ]}
 										onChangeText={this.mask} />
@@ -216,63 +239,100 @@ class CEPScreen extends Component {
 								</Button>
 						</View>
 						) : (
-							<View style={styles.confirmAddress}>
-									<Text style={[styles.cep, { fontSize: 16 }]}> CONFIRME SEU ENDEREÇO </Text>
-								<View style={ styles.addressContainer }>
-									<View style={{ width: '75%'}}>
-										<Item stackedLabel>
-											<Label style={styles.label}>Endereço</Label>
-											<Input
-											 style={styles.inputText}
-											 value={this.state.address}
-											 onChangeText={(address) => false }
-											/>
-										</Item>
+								<Content style={styles.holder} keyboardShouldPersistTaps="handled">
+									<View style={{ alignItems: 'center'}}> 
+										<Label style={styles.logoText}>CONFIRME SEU ENDEREÇO</Label>
 									</View>
-									<View style={{ width: '20%'}}>
-										<Item stackedLabel>
-											<Label style={styles.label}>No.</Label>
-											<Input
-											 style={styles.inputText}
-											 value={this.state.addressNumber}
-											 onChangeText={(addressNumber) => this.setState({ addressNumber }) }
-											/>
-										</Item>
+									<View>
+										<Form>
+											<Item
+												stackedLabel
+											>
+												<Label>Endereço</Label>
+												<Input
+													autoCapitalize="words"
+													returnKeyType="next"
+													onSubmitEditing={() => this.focusInput('addressNumber')}
+													value={this.state.address}
+													onChangeText={(address) => false }
+												/>
+											</Item>
+											<Item
+												stackedLabel
+											>
+												<Label>Número</Label>
+												<Input
+													ref={(c) => { this.addressNumber = c; }}
+													autoCapitalize="words"
+													returnKeyType="next"
+													onSubmitEditing={() => this.focusInput('aditionalAddressInformation')}
+													value={this.state.addressNumber}
+													onChangeText={(addressNumber) => this.setState({ addressNumber }) }
+												/>
+											</Item>
+											<Item
+												stackedLabel
+											>
+												<Label>Complemento</Label>
+												<Input
+													ref={(c) => { this.aditionalAddressInformation = c; }}
+													autoCapitalize="words"
+													returnKeyType="next"
+													onSubmitEditing={() => this.focusInput('nearestAddressPoint')}
+													value={this.state.aditionalAddressInformation}
+														onChangeText={(aditionalAddressInformation) => this.setState({ aditionalAddressInformation }) }
+												/>
+											</Item>
+											<Item
+												stackedLabel
+											>
+												<Label>Ponto de referência</Label>
+												<Input
+													ref={(c) => { this.nearestAddressPoint = c; }}
+													autoCapitalize="words"
+													returnKeyType="next"
+													onSubmitEditing={() => this.focusInput('neighborhood')}
+													value={this.state.nearestAddressPoint}
+														onChangeText={(nearestAddressPoint) => this.setState({ nearestAddressPoint }) }
+												/>
+											</Item>
+											<Item
+												stackedLabel
+											>
+												<Label>Bairro</Label>
+												<Input
+													ref={(c) => { this.neighborhood = c; }}
+													autoCapitalize="words"
+													returnKeyType="next"
+													onSubmitEditing={() => this.focusInput('city')}
+													value={this.state.neighborhood}
+													onChangeText={(neighborhood) => false }
+												/>
+											</Item>
+											<Item
+												stackedLabel
+											>
+												<Label>Cidade</Label>
+												<Input
+													ref={(c) => { this.city = c; }}
+													autoCapitalize="words"
+													returnKeyType="done"
+													value={this.state.city}
+													onChangeText={(city) => false }
+												/>
+											</Item>
+										</Form>
 									</View>
-								</View>
-								<View style={ styles.addressContainer }>
-									<View style={{ width: '60%'}}>
-										<Item stackedLabel>
-											<Label style={styles.label}>Bairro</Label>
-											<Input
-											 style={styles.inputText}
-											 value={this.state.neighborhood}
-											 onChangeText={(neighborhood) => false}
-											/>
-										</Item>
+									<View style={{ width: '100%', alignItems: 'center', flexDirection: 'column'}}>
+										<Button block style={ [styles.button] } onPress={ this.checkAddress }>
+											<Text> Confirmar </Text>
+										</Button>
+										<TouchableOpacity block  onPress={ () => this.setState({ fetch: !this.state.fetch, cep: '' }) }>
+											<Text style={styles.footer}> Endereço errado? </Text>
+										</TouchableOpacity>
 									</View>
-									<View style={{ width: '35%'}}>
-										<Item stackedLabel>
-											<Label style={styles.label}>Cidade</Label>
-											<Input
-											 style={styles.inputText}
-											 value={this.state.city}
-											 onChangeText={(city) => false}
-											/>
-										</Item>
-									</View>
-								</View>
-								<View style={{ width: '90%'}}>
-									<Button block style={ [styles.button] } onPress={ this.checkAddress }>
-										<Text> Confirmar </Text>
-									</Button>
-									<TouchableOpacity block  onPress={ () => this.setState({ fetch: !this.state.fetch, cep: '' }) }>
-										<Text style={styles.footer}> Endereço errado? </Text>
-									</TouchableOpacity>
-								</View>
-							</View>
+								</Content>
 						)}
-						
 				</View>
 			</View>
 		)
@@ -292,14 +352,15 @@ const styles = {
 	subContainer: {
 		flex: 1,
 		justifyContent: 'center',
-		paddingHorizontal: 20
+		paddingHorizontal: 10
 	},
 	loginForm: {
 		paddingVertical: 20
 	},
 	button: {
 		marginVertical: 40,
-		backgroundColor: colors.button.primary
+		backgroundColor: colors.button.primary,
+		// alignSelf: 'center'
 	},
 	label: {
 		color: colors.text.primary,
@@ -314,11 +375,12 @@ const styles = {
 		textAlign:'center'
 	},
 	footer: {
-		color: colors.footer,
+		color: colors.text.footer,
 		fontSize: 13.5,
 		fontWeight: '600',
 		textAlign: 'center',
-		marginBottom: 60
+		marginBottom: 60,
+		// padding: 20
 	},
 	cep: {
 		color: colors.text.primary,
@@ -349,7 +411,17 @@ const styles = {
 		fontSize: 16,
 		color: '#e60000',
 		fontWeight: '700'
-	}
+	},
+	containerAddress: {
+    backgroundColor: '#fff'
+  },
+  holder: {
+    paddingHorizontal: 8
+  },
+  logoText: {
+    fontSize: 18,
+    marginVertical: 30
+  },
 }
 
 const mapStateToProps = state => ({
